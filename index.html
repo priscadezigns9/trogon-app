@@ -873,11 +873,22 @@ function connectFacebook() {
   if (FB_APP_ID === 'FB_APP_ID_PLACEHOLDER') {
     toast('Facebook App ID not configured yet','error'); return;
   }
+  // Check if FB SDK is loaded
+  if (typeof FB === 'undefined') {
+    toast('Facebook SDK loading... please try again in a moment','error');
+    // Force reload SDK
+    const s = document.createElement('script');
+    s.src = 'https://connect.facebook.net/en_US/sdk.js';
+    s.onload = () => FB.init({appId:FB_APP_ID,cookie:true,xfbml:true,version:'v19.0'});
+    document.head.appendChild(s);
+    return;
+  }
   FB.login(async response => {
-    if (response.authResponse) {
+    if (response.status === 'connected' && response.authResponse) {
       const token = response.authResponse.accessToken;
-      // Get long-lived token
+      toast('Connected! Loading your pages...');
       const pages = await fetchFBPages(token);
+      if (!pages.length) { toast('No Facebook pages found on this account','error'); return; }
       for (const page of pages) {
         const {error} = await sb.from('connected_accounts').upsert({
           user_id: currentUser.id,
@@ -885,12 +896,18 @@ function connectFacebook() {
           account_id: page.id,
           account_name: page.name,
           access_token: page.access_token,
-        });
-        if (!error) toast(`Connected: ${page.name}`);
+        }, {onConflict:'user_id,account_id'});
+        if (!error) toast(`✓ Connected: ${page.name}`);
       }
       await loadConnectedAccounts();
+      renderConnectedPages();
+      await loadFeed();
+    } else if (response.status === 'not_authorized') {
+      toast('You declined the permissions — please allow access to your pages','error');
+    } else {
+      toast('Facebook login cancelled','error');
     }
-  }, {scope:'pages_show_list,pages_read_engagement,pages_manage_posts,pages_read_user_content'});
+  }, {scope:'pages_show_list,pages_read_engagement,pages_manage_posts,pages_read_user_content', return_scopes:true});
 }
 
 async function fetchFBPages(token) {
@@ -1415,8 +1432,16 @@ function closeModal() { document.getElementById('modal').classList.remove('open'
 if (FB_APP_ID !== 'FB_APP_ID_PLACEHOLDER') {
   window.fbAsyncInit = function() {
     FB.init({appId:FB_APP_ID,cookie:true,xfbml:true,version:'v19.0'});
+    FB.AppEvents.logPageView();
   };
-  (function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="https://connect.facebook.net/en_US/sdk.js";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));
+  (function(d,s,id){
+    var js,fjs=d.getElementsByTagName(s)[0];
+    if(d.getElementById(id))return;
+    js=d.createElement(s);js.id=id;
+    js.src="https://connect.facebook.net/en_US/sdk.js";
+    js.crossOrigin="anonymous";
+    fjs.parentNode.insertBefore(js,fjs);
+  }(document,'script','facebook-jssdk'));
 }
 
 // ── WEB3 WALLET LOGIN ──
