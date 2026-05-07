@@ -575,7 +575,14 @@ const GROQ_KEY = 'GROQ_KEY_PLACEHOLDER';
 const FB_APP_ID = 'FB_APP_ID_PLACEHOLDER';
 
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Load keys from localStorage first
+const _sbKey = localStorage.getItem('trogon_sb_key') || SUPABASE_ANON_KEY;
+const _groqKey = localStorage.getItem('trogon_groq_key') || GROQ_KEY;
+const sb = createClient(SUPABASE_URL, _sbKey);
+
+// Override GROQ_KEY with saved value
+const GROQ_KEY_LIVE = _groqKey;
 
 let currentUser = null;
 let connectedAccounts = [];
@@ -847,7 +854,7 @@ async function generateCaption() {
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
-      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
+      headers:{'Authorization':`Bearer ${GROQ_KEY_LIVE}`,'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'llama-3.3-70b-versatile',
         messages:[{
@@ -1201,7 +1208,8 @@ Object.defineProperty(window, 'GROQ_KEY', {
 
 // Check keys on load
 window.addEventListener('DOMContentLoaded', function() {
-  if (!loadSavedKeys()) {
+  const sbKey = localStorage.getItem('trogon_sb_key');
+  if (!sbKey || !sbKey.startsWith('eyJ')) {
     document.getElementById('setup-screen').style.display = 'flex';
     document.getElementById('auth-screen').style.display = 'none';
   }
