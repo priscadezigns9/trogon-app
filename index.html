@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -241,6 +242,7 @@ input,textarea,select{font-family:inherit}
 .btn-google{background:#fff;color:#1a1a1a}
 .btn-facebook{background:#1877F2;color:#fff}
 .btn-apple{background:#000;color:#fff}
+.btn-wallet{background:linear-gradient(135deg,#7C3AED,#B01020);color:#fff}
 .auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--dim);font-size:0.78rem}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
@@ -305,6 +307,10 @@ input,textarea,select{font-family:inherit}
       <button class="btn-social btn-apple" onclick="signInWithApple()">
         <svg width="18" height="18" viewBox="0 0 814 1000" fill="#fff"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 486.3 1 373.4 1 264.5c0-176.6 115.6-269.9 229.6-269.9 60.4 0 110.8 39.5 148.5 39.5 35.9 0 92.3-42.1 161.8-42.1 26 0 108.2 2.6 168.6 79.6zm-127.4-88c-10.3-49.7-38.3-101.4-76.6-135.4-30.7-27.4-74.4-48.4-118.1-48.4-5.8 0-11.6.6-17.4 1.9 3.2 52.3 25.3 103.4 60.4 139.7 32.6 33.9 78.3 59.2 151.7 42.2z"/></svg>
         Continue with Apple
+      </button>
+      <button class="btn-social btn-wallet" onclick="signInWithWallet()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="2"/></svg>
+        Connect Wallet
       </button>
     </div>
 
@@ -1208,6 +1214,48 @@ if (FB_APP_ID !== 'FB_APP_ID_PLACEHOLDER') {
     FB.init({appId:FB_APP_ID,cookie:true,xfbml:true,version:'v19.0'});
   };
   (function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="https://connect.facebook.net/en_US/sdk.js";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));
+}
+
+// ── WEB3 WALLET LOGIN ──
+async function signInWithWallet() {
+  if (!window.ethereum) {
+    toast('No wallet detected. Install MetaMask or Coinbase Wallet.', 'error');
+    window.open('https://metamask.io/download/', '_blank');
+    return;
+  }
+  try {
+    toast('Connecting wallet...');
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.send('eth_requestAccounts', []);
+    const address = accounts[0];
+    const signer = await provider.getSigner();
+
+    // Create a sign-in message
+    const message = `Sign in to Trogon\n\nWallet: ${address}\nTime: ${new Date().toISOString()}`;
+    const signature = await signer.signMessage(message);
+
+    // Use wallet address as email + signature as password (deterministic)
+    const email = `${address.toLowerCase()}@wallet.trogon`;
+    const password = signature.slice(0, 32);
+
+    // Try sign in first, then sign up
+    let { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error && error.message.includes('Invalid login credentials')) {
+      const res = await sb.auth.signUp({ email, password, options: { data: { wallet_address: address, full_name: `${address.slice(0,6)}...${address.slice(-4)}` } } });
+      if (res.error) throw res.error;
+      data = res.data;
+    } else if (error) throw error;
+
+    if (data?.user) {
+      // Save wallet address
+      await sb.from('profiles').upsert({ id: data.user.id, wallet_address: address });
+      toast(`Wallet connected: ${address.slice(0,6)}...${address.slice(-4)} ✓`);
+      await onLogin(data.user);
+    }
+  } catch (e) {
+    if (e.code === 4001) toast('Wallet connection cancelled', 'error');
+    else toast(e.message || 'Wallet error', 'error');
+  }
 }
 
 // ── SOCIAL AUTH ──
