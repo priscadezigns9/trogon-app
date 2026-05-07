@@ -33,6 +33,18 @@
   --text:#e8eaf6;--dim:#6b7280;--border:#1e2235;
   --sidebar:248px;
 }
+/* ── LIGHT THEME ── */
+[data-theme="light"]{
+  --bg:#f0f2f8;--surface:#ffffff;--surface2:#e8eaf0;
+  --text:#0d0f1a;--dim:#6b7280;--border:#d1d5db;
+  --sidebar:248px;
+}
+[data-theme="light"] .sidebar{background:#ffffff;border-right:1px solid #e5e7eb}
+[data-theme="light"] .main-content{background:#f0f2f8}
+[data-theme="light"] .nav-item:hover,[data-theme="light"] .nav-item.active{background:#f0f2f8}
+[data-theme="light"] #auth-screen{background:#f0f2f8}
+[data-theme="light"] .auth-box{background:#fff;border:1px solid #e5e7eb;border-radius:16px}
+
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;border:none;font-family:inherit}
@@ -368,6 +380,9 @@ input,textarea,select{font-family:inherit}
       <div class="sidebar-logo">
         <img src="https://raw.githubusercontent.com/priscadezigns9/trogon-app/main/trogon_logo.png" alt="Trogon">
         <span>TROGON</span>
+        <button onclick="toggleTheme()" id="theme-btn" title="Toggle theme" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#6b7280;padding:4px;border-radius:6px;display:flex;align-items:center">
+          <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Main</div>
@@ -484,11 +499,32 @@ input,textarea,select{font-family:inherit}
                 <img id="ai-generated-img" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="" alt="Generated image">
                 <button class="btn-sm" style="margin-top:8px" onclick="useGeneratedImage()">Use in post</button>
               </div>
+              <div class="section-label">📎 Attach Image</div>
+              <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+                <input type="file" id="compose-image-input" accept="image/*" style="display:none" onchange="previewComposeImage(this)">
+                <button class="btn-sm" onclick="document.getElementById('compose-image-input').click()">📷 Upload Image</button>
+                <button class="btn-sm" id="compose-img-clear" style="display:none;color:var(--red)" onclick="clearComposeImage()">✕ Remove</button>
+              </div>
+              <div id="compose-image-preview" style="display:none;margin-bottom:16px">
+                <img id="compose-img-thumb" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+              </div>
               <div class="section-label">📄 Post to Pages</div>
               <div class="page-checks" id="compose-pages"><div style="color:var(--dim);font-size:0.85rem">No pages connected. <span style="color:var(--green);cursor:pointer" onclick="showPage('connect')">Connect pages →</span></div></div>
               <div class="section-label">🕐 Schedule</div>
               <div class="schedule-row">
                 <input type="datetime-local" id="schedule-time">
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px;margin-bottom:4px">
+                <input type="checkbox" id="recurring-toggle" onchange="toggleRecurring()" style="width:16px;height:16px;accent-color:var(--blue)">
+                <label for="recurring-toggle" style="font-size:0.82rem;color:var(--dim);cursor:pointer">Repeat this post</label>
+              </div>
+              <div id="recurring-options" style="display:none;margin-top:10px">
+                <select id="recurring-freq" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:0.83rem">
+                  <option value="daily">Every day</option>
+                  <option value="weekly">Every week</option>
+                  <option value="biweekly">Every 2 weeks</option>
+                  <option value="monthly">Every month</option>
+                </select>
               </div>
               <div class="compose-actions">
                 <button class="btn-post" onclick="publishNow()">🚀 Post Now</button>
@@ -798,6 +834,8 @@ async function onLogin(user) {
   await loadScheduledPosts();
   renderCalendar();
   renderAnalytics();
+  // Show onboarding for new users
+  if (!localStorage.getItem('trogon_onboarded')) showOnboarding();
 }
 
 async function logout() {
@@ -981,6 +1019,7 @@ async function loadFeed() {
       <div class="post-stats">
         <div class="post-stat"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> ${p.likes||0}</div>
         <div class="post-stat"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${p.comments||0}</div>
+        ${p.status==='scheduled'?`<button onclick="deletePost('${p.id}')" style="margin-left:auto;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.75rem;padding:2px 6px;border-radius:4px" onmouseover="this.style.color='#B01020'" onmouseout="this.style.color='var(--dim)'">Delete</button>`:''}
       </div>
     </div>`).join('');
 }
@@ -1132,13 +1171,22 @@ async function schedulePost() {
   if (!schedTime) { toast('Pick a date and time','error'); return; }
   const selectedIds = getSelectedAccountIds();
   if (!selectedIds.length) { toast('Select at least one page','error'); return; }
-  await sb.from('posts').insert({
+  const isRecurring = document.getElementById('recurring-toggle').checked;
+  const freq = isRecurring ? document.getElementById('recurring-freq').value : null;
+  const postData = {
     user_id:currentUser.id, account_ids:selectedIds,
-    content, status:'scheduled', scheduled_for:new Date(schedTime).toISOString()
-  });
-  toast('Post scheduled! 📅');
+    content, status:'scheduled', scheduled_for:new Date(schedTime).toISOString(),
+    ...(freq && {recurring: freq})
+  };
+  if (composeImageBase64) postData.image_base64 = composeImageBase64;
+  await sb.from('posts').insert(postData);
+  const msg = isRecurring ? `Post scheduled & repeating ${freq}! 🔁` : 'Post scheduled! 📅';
+  toast(msg);
   document.getElementById('compose-text').value='';
   document.getElementById('schedule-time').value='';
+  document.getElementById('recurring-toggle').checked=false;
+  document.getElementById('recurring-options').style.display='none';
+  clearComposeImage();
   updatePreview(); updateCharCount();
   await loadScheduledPosts();
   renderCalendar();
@@ -1546,8 +1594,167 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('setup-screen').style.display = 'flex';
     document.getElementById('auth-screen').style.display = 'none';
   }
+  // Apply saved theme
+  if (localStorage.getItem('trogon_theme') === 'light') applyLightTheme();
 });
 
+// ── ONBOARDING ──
+function showOnboarding() {
+  const overlay = document.getElementById('onboarding-overlay');
+  overlay.style.display = 'flex';
+  obNext(1);
+}
+function closeOnboarding() {
+  document.getElementById('onboarding-overlay').style.display = 'none';
+  localStorage.setItem('trogon_onboarded', '1');
+}
+function obNext(step) {
+  [1,2,3].forEach(i => {
+    document.getElementById('ob-step-'+i).style.display = i===step ? 'block' : 'none';
+    const dot = document.getElementById('ob-dot-'+i);
+    dot.style.background = i <= step ? '#3B82F6' : '#1e2235';
+  });
+  // Refresh connected list in step 2
+  if (step === 2) {
+    const list = document.getElementById('ob-connected-list');
+    if (connectedAccounts && connectedAccounts.length > 0) {
+      list.innerHTML = connectedAccounts.map(a =>
+        `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:#00C040"></div>
+          <span style="color:#e8eaf6">${a.page_name || 'Page'}</span>
+        </div>`
+      ).join('');
+    } else {
+      list.textContent = 'No pages connected yet.';
+    }
+  }
+}
+
+// ── THEME TOGGLE ──
+function toggleTheme() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    applyDarkTheme();
+    localStorage.setItem('trogon_theme', 'dark');
+  } else {
+    applyLightTheme();
+    localStorage.setItem('trogon_theme', 'light');
+  }
+}
+function applyLightTheme() {
+  document.documentElement.setAttribute('data-theme', 'light');
+  document.getElementById('theme-icon').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>';
+}
+function applyDarkTheme() {
+  document.documentElement.removeAttribute('data-theme');
+  document.getElementById('theme-icon').innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+
+// ── IMAGE ATTACH IN COMPOSE ──
+let composeImageFile = null;
+let composeImageBase64 = null;
+function previewComposeImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  composeImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    composeImageBase64 = e.target.result;
+    document.getElementById('compose-img-thumb').src = composeImageBase64;
+    document.getElementById('compose-image-preview').style.display = 'block';
+    document.getElementById('compose-img-clear').style.display = 'inline-flex';
+  };
+  reader.readAsDataURL(file);
+}
+function clearComposeImage() {
+  composeImageFile = null;
+  composeImageBase64 = null;
+  document.getElementById('compose-image-preview').style.display = 'none';
+  document.getElementById('compose-img-clear').style.display = 'none';
+  document.getElementById('compose-image-input').value = '';
+}
+
+// ── RECURRING SCHEDULE ──
+function toggleRecurring() {
+  const on = document.getElementById('recurring-toggle').checked;
+  document.getElementById('recurring-options').style.display = on ? 'block' : 'none';
+}
+
+// ── DELETE POST ──
+async function deletePost(postId) {
+  openModal('Delete Post', 'Are you sure you want to delete this scheduled post?', async () => {
+    const { error } = await sb.from('posts').delete().eq('id', postId);
+    if (error) { toast('Failed to delete post', 'error'); return; }
+    toast('Post deleted');
+    await loadFeed();
+    await loadScheduledPosts();
+    renderCalendar();
+  });
+}
+
 </script>
+
+<!-- ── ONBOARDING MODAL ── -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#141622;border:1px solid #1e2235;border-radius:16px;padding:40px 36px;width:100%;max-width:520px">
+    <div style="display:flex;gap:8px;margin-bottom:32px">
+      <div id="ob-dot-1" style="height:4px;flex:1;border-radius:2px;background:#3B82F6"></div>
+      <div id="ob-dot-2" style="height:4px;flex:1;border-radius:2px;background:#1e2235"></div>
+      <div id="ob-dot-3" style="height:4px;flex:1;border-radius:2px;background:#1e2235"></div>
+    </div>
+    <div id="ob-step-1">
+      <div style="text-align:center;margin-bottom:28px">
+        <img src="https://raw.githubusercontent.com/priscadezigns9/trogon-app/main/trogon_logo.png" style="height:56px;width:56px;border-radius:50%;margin-bottom:14px">
+        <div style="font-size:1.4rem;font-weight:700;margin-bottom:8px">Welcome to Trogon 🎉</div>
+        <div style="font-size:0.88rem;color:#6b7280;line-height:1.6">Let's get you set up in 3 quick steps so you can start growing your brand.</div>
+      </div>
+      <div style="background:#0d0f1a;border-radius:10px;padding:20px;margin-bottom:24px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div style="font-size:0.85rem;color:#e8eaf6">Connect your social media pages</div></div>
+        <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:50%;background:rgba(0,192,64,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00C040" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div style="font-size:0.85rem;color:#e8eaf6">Create and schedule your first post</div></div>
+        <div style="display:flex;align-items:center;gap:12px"><div style="width:32px;height:32px;border-radius:50%;background:rgba(176,16,32,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B01020" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div style="font-size:0.85rem;color:#e8eaf6">Watch your analytics grow</div></div>
+      </div>
+      <button onclick="obNext(2)" style="width:100%;background:#3B82F6;color:#fff;padding:13px;border-radius:8px;font-weight:700;font-size:0.9rem;border:none;cursor:pointer">Get Started →</button>
+    </div>
+    <div id="ob-step-2" style="display:none">
+      <div style="margin-bottom:20px">
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:6px">Connect your pages</div>
+        <div style="font-size:0.85rem;color:#6b7280">Link your Facebook pages to start posting from Trogon.</div>
+      </div>
+      <div style="background:#0d0f1a;border-radius:10px;padding:20px;margin-bottom:20px">
+        <div id="ob-connected-list" style="margin-bottom:16px;font-size:0.85rem;color:#6b7280">No pages connected yet.</div>
+        <button onclick="connectFacebook()" style="display:flex;align-items:center;gap:10px;background:#1877F2;color:#fff;padding:11px 16px;border-radius:8px;font-weight:600;font-size:0.85rem;border:none;cursor:pointer;width:100%;justify-content:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+          Connect Facebook Pages
+        </button>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="obNext(1)" style="flex:1;background:#1c1f30;color:#e8eaf6;padding:12px;border-radius:8px;font-weight:600;font-size:0.85rem;border:1px solid #1e2235;cursor:pointer">← Back</button>
+        <button onclick="obNext(3)" style="flex:2;background:#3B82F6;color:#fff;padding:12px;border-radius:8px;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">Next →</button>
+      </div>
+    </div>
+    <div id="ob-step-3" style="display:none">
+      <div style="margin-bottom:20px">
+        <div style="font-size:1.2rem;font-weight:700;margin-bottom:6px">You're all set! 🚀</div>
+        <div style="font-size:0.85rem;color:#6b7280">Your dashboard is ready. What do you want to do first?</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+        <button onclick="closeOnboarding();showPage('compose')" style="display:flex;align-items:center;gap:12px;background:#0d0f1a;border:1px solid #1e2235;border-radius:8px;padding:14px 16px;cursor:pointer;text-align:left;width:100%">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <div><div style="font-size:0.88rem;font-weight:600;color:#e8eaf6">Write my first post</div><div style="font-size:0.75rem;color:#6b7280">Use AI to generate a caption instantly</div></div>
+        </button>
+        <button onclick="closeOnboarding();showPage('calendar')" style="display:flex;align-items:center;gap:12px;background:#0d0f1a;border:1px solid #1e2235;border-radius:8px;padding:14px 16px;cursor:pointer;text-align:left;width:100%">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00C040" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div><div style="font-size:0.88rem;font-weight:600;color:#e8eaf6">Schedule a week of posts</div><div style="font-size:0.75rem;color:#6b7280">Plan your content calendar in advance</div></div>
+        </button>
+        <button onclick="closeOnboarding();showPage('analytics')" style="display:flex;align-items:center;gap:12px;background:#0d0f1a;border:1px solid #1e2235;border-radius:8px;padding:14px 16px;cursor:pointer;text-align:left;width:100%">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B01020" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <div><div style="font-size:0.88rem;font-weight:600;color:#e8eaf6">View my analytics</div><div style="font-size:0.75rem;color:#6b7280">Track reach, engagement and growth</div></div>
+        </button>
+      </div>
+      <button onclick="closeOnboarding()" style="width:100%;background:#3B82F6;color:#fff;padding:13px;border-radius:8px;font-weight:700;font-size:0.9rem;border:none;cursor:pointer">Go to Dashboard</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
