@@ -234,6 +234,16 @@ input,textarea,select{font-family:inherit}
 .modal h3{font-size:1.1rem;font-weight:600;margin-bottom:20px}
 .modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
 
+/* ── SOCIAL BUTTONS ── */
+.social-btns{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.btn-social{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:6px;font-size:0.88rem;font-weight:600;font-family:inherit;border:none;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.2px}
+.btn-social:hover{opacity:0.88}
+.btn-google{background:#fff;color:#1a1a1a}
+.btn-facebook{background:#1877F2;color:#fff}
+.btn-apple{background:#000;color:#fff}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--dim);font-size:0.78rem}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%)}
@@ -280,7 +290,27 @@ input,textarea,select{font-family:inherit}
       <span>TROGON</span>
     </div>
     <div class="auth-title" id="auth-title">Welcome back</div>
-    <div class="auth-sub" id="auth-sub">Sign in to your Trogon account</div>
+    <div class="auth-sub" id="auth-sub">Sign in to continue</div>
+
+    <!-- SOCIAL LOGINS -->
+    <div class="social-btns">
+      <button class="btn-social btn-google" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.3 0 24 0 14.7 0 6.8 5.4 2.9 13.2l7.9 6.1C12.6 13.2 17.9 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.5c-.5 2.9-2.1 5.3-4.5 6.9l7 5.4c4.1-3.8 6.5-9.4 6.5-16.2z"/><path fill="#FBBC05" d="M10.8 28.7A14.6 14.6 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7L2.3 13.2A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7-5.4c-2.1 1.4-4.8 2.2-8 2.2-6.1 0-11.3-3.7-13.2-9.1l-8.1 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <button class="btn-social btn-facebook" onclick="signInWithFacebook()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+        Continue with Facebook
+      </button>
+      <button class="btn-social btn-apple" onclick="signInWithApple()">
+        <svg width="18" height="18" viewBox="0 0 814 1000" fill="#fff"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 486.3 1 373.4 1 264.5c0-176.6 115.6-269.9 229.6-269.9 60.4 0 110.8 39.5 148.5 39.5 35.9 0 92.3-42.1 161.8-42.1 26 0 108.2 2.6 168.6 79.6zm-127.4-88c-10.3-49.7-38.3-101.4-76.6-135.4-30.7-27.4-74.4-48.4-118.1-48.4-5.8 0-11.6.6-17.4 1.9 3.2 52.3 25.3 103.4 60.4 139.7 32.6 33.9 78.3 59.2 151.7 42.2z"/></svg>
+        Continue with Apple
+      </button>
+    </div>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <!-- EMAIL FORM -->
     <div class="field" id="name-field" style="display:none">
       <label>Full Name</label>
       <input type="text" id="auth-name" placeholder="Your name">
@@ -1178,6 +1208,31 @@ if (FB_APP_ID !== 'FB_APP_ID_PLACEHOLDER') {
     FB.init({appId:FB_APP_ID,cookie:true,xfbml:true,version:'v19.0'});
   };
   (function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="https://connect.facebook.net/en_US/sdk.js";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));
+}
+
+// ── SOCIAL AUTH ──
+async function signInWithGoogle() {
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) toast(error.message, 'error');
+}
+
+async function signInWithFacebook() {
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: 'facebook',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) toast(error.message, 'error');
+}
+
+async function signInWithApple() {
+  const { data, error } = await sb.auth.signInWithOAuth({
+    provider: 'apple',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) toast(error.message, 'error');
 }
 
 // ── KEY SETUP ──
