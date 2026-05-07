@@ -29,11 +29,11 @@ input,textarea,select{font-family:inherit}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── AUTH ── */
-#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
-.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px 40px;width:100%;max-width:420px}
-.auth-logo{display:flex;flex-direction:column;align-items:center;gap:12px;justify-content:center;margin-bottom:32px}
-.auth-logo img{height:120px;width:120px;object-fit:contain;border-radius:16px}
-.auth-logo span{font-size:1.6rem;font-weight:700;letter-spacing:2px;color:var(--text)}
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:stretch;justify-content:center;z-index:100}
+.auth-box{background:transparent;padding:0;width:100%;max-width:420px;display:flex;flex-direction:column;justify-content:center;padding:48px 40px}
+.auth-logo{display:flex;flex-direction:column;align-items:center;gap:16px;justify-content:center;margin-bottom:40px}
+.auth-logo img{height:100px;width:100px;object-fit:contain;border-radius:0;filter:drop-shadow(0 0 20px rgba(176,16,32,0.3))}
+.auth-logo span{font-size:1.5rem;font-weight:700;letter-spacing:4px;color:var(--text)}
 .auth-title{font-size:1.4rem;font-weight:600;margin-bottom:8px;text-align:center}
 .auth-sub{font-size:0.85rem;color:var(--dim);text-align:center;margin-bottom:32px}
 .field{margin-bottom:16px}
@@ -248,19 +248,20 @@ input,textarea,select{font-family:inherit}
 <body>
 
 <div id="setup-screen" style="position:fixed;inset:0;background:#0f1117;z-index:9999;display:none;align-items:center;justify-content:center">
-  <div style="background:#1a1d2e;border:1px solid #2a2d3a;border-radius:12px;padding:48px 40px;width:100%;max-width:480px">
-    <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:32px">
-      <span style="font-size:1.8rem;font-weight:700;letter-spacing:3px;color:#e8eaf6">TROGON</span>
+  <div style="width:100%;max-width:420px;padding:48px 40px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:48px">
+      <img src="https://raw.githubusercontent.com/priscadezigns9/trogon-app/main/trogon_logo.png" alt="Trogon" style="height:90px;width:90px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(176,16,32,0.3))">
+      <span style="font-size:1.5rem;font-weight:700;letter-spacing:4px;color:#e8eaf6">TROGON</span>
     </div>
-    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;text-align:center;color:#e8eaf6">First Time Setup</div>
-    <div style="font-size:0.85rem;color:#8b8fa8;text-align:center;margin-bottom:28px">Enter your API keys once. They are saved locally on this device.</div>
+    <div style="font-size:0.72rem;font-weight:600;color:#8b8fa8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">First Time Setup</div>
+    <div style="font-size:0.85rem;color:#8b8fa8;margin-bottom:28px">Enter your API keys once — saved locally on this device.</div>
     <div style="margin-bottom:16px">
       <label style="display:block;font-size:0.72rem;font-weight:600;color:#8b8fa8;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Supabase Anon Key</label>
-      <input id="setup-sb-key" type="password" placeholder="eyJ..." style="width:100%;background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:11px 14px;color:#e8eaf6;font-size:0.88rem;font-family:inherit">
+      <input id="setup-sb-key" type="password" placeholder="eyJ..." style="width:100%;background:#1a1d2e;border:1px solid #2a2d3a;border-radius:6px;padding:11px 14px;color:#e8eaf6;font-size:0.88rem;font-family:inherit;transition:border 0.2s" onfocus="this.style.borderColor='#00C040'" onblur="this.style.borderColor='#2a2d3a'">
     </div>
-    <div style="margin-bottom:24px">
+    <div style="margin-bottom:28px">
       <label style="display:block;font-size:0.72rem;font-weight:600;color:#8b8fa8;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Groq API Key</label>
-      <input id="setup-groq-key" type="password" placeholder="gsk_..." style="width:100%;background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:11px 14px;color:#e8eaf6;font-size:0.88rem;font-family:inherit">
+      <input id="setup-groq-key" type="password" placeholder="gsk_..." style="width:100%;background:#1a1d2e;border:1px solid #2a2d3a;border-radius:6px;padding:11px 14px;color:#e8eaf6;font-size:0.88rem;font-family:inherit;transition:border 0.2s" onfocus="this.style.borderColor='#00C040'" onblur="this.style.borderColor='#2a2d3a'">
     </div>
     <button onclick="saveSetup()" style="width:100%;background:#00C040;color:#0f1117;padding:12px;border-radius:6px;font-weight:700;font-size:0.9rem;border:none;cursor:pointer;font-family:inherit">Save & Continue</button>
   </div>
