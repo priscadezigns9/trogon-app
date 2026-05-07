@@ -31,8 +31,8 @@ input,textarea,select{font-family:inherit}
 /* ── AUTH ── */
 #auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
 .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px 40px;width:100%;max-width:420px}
-.auth-logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:32px}
-.auth-logo img{height:44px}
+.auth-logo{display:flex;flex-direction:column;align-items:center;gap:12px;justify-content:center;margin-bottom:32px}
+.auth-logo img{height:120px;width:120px;object-fit:contain;border-radius:16px}
 .auth-logo span{font-size:1.6rem;font-weight:700;letter-spacing:2px;color:var(--text)}
 .auth-title{font-size:1.4rem;font-weight:600;margin-bottom:8px;text-align:center}
 .auth-sub{font-size:0.85rem;color:var(--dim);text-align:center;margin-bottom:32px}
@@ -274,7 +274,25 @@ input,textarea,select{font-family:inherit}
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-      <img src="/trogon/trogon_logo.png" alt="Trogon" onerror="this.style.display='none'">
+      <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="48" fill="#1a1d2e" stroke="#B01020" stroke-width="2"/>
+  <!-- Body -->
+  <ellipse cx="50" cy="58" rx="22" ry="16" fill="#B01020"/>
+  <!-- Wing -->
+  <path d="M28 55 Q20 40 35 38 Q45 48 50 55 Z" fill="#8a0c18"/>
+  <path d="M72 55 Q80 40 65 38 Q55 48 50 55 Z" fill="#8a0c18"/>
+  <!-- Head -->
+  <circle cx="50" cy="36" r="13" fill="#B01020"/>
+  <!-- Eye -->
+  <circle cx="54" cy="34" r="3" fill="white"/>
+  <circle cx="55" cy="34" r="1.5" fill="#0f1117"/>
+  <!-- Beak -->
+  <path d="M60 37 L68 35 L62 40 Z" fill="#e8a020"/>
+  <!-- Tail -->
+  <path d="M38 68 Q30 80 28 88 Q35 82 50 74 Q65 82 72 88 Q70 80 62 68 Z" fill="#8a0c18"/>
+  <!-- Chest stripe -->
+  <ellipse cx="50" cy="60" rx="10" ry="7" fill="#e8a020" opacity="0.7"/>
+</svg>
       <span>TROGON</span>
     </div>
     <div class="auth-title" id="auth-title">Welcome back</div>
@@ -304,7 +322,25 @@ input,textarea,select{font-family:inherit}
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-logo">
-        <img src="/trogon/trogon_logo.png" alt="Trogon" onerror="this.style.display='none'">
+        <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="48" fill="#1a1d2e" stroke="#B01020" stroke-width="2"/>
+  <!-- Body -->
+  <ellipse cx="50" cy="58" rx="22" ry="16" fill="#B01020"/>
+  <!-- Wing -->
+  <path d="M28 55 Q20 40 35 38 Q45 48 50 55 Z" fill="#8a0c18"/>
+  <path d="M72 55 Q80 40 65 38 Q55 48 50 55 Z" fill="#8a0c18"/>
+  <!-- Head -->
+  <circle cx="50" cy="36" r="13" fill="#B01020"/>
+  <!-- Eye -->
+  <circle cx="54" cy="34" r="3" fill="white"/>
+  <circle cx="55" cy="34" r="1.5" fill="#0f1117"/>
+  <!-- Beak -->
+  <path d="M60 37 L68 35 L62 40 Z" fill="#e8a020"/>
+  <!-- Tail -->
+  <path d="M38 68 Q30 80 28 88 Q35 82 50 74 Q65 82 72 88 Q70 80 62 68 Z" fill="#8a0c18"/>
+  <!-- Chest stripe -->
+  <ellipse cx="50" cy="60" rx="10" ry="7" fill="#e8a020" opacity="0.7"/>
+</svg>
         <span>TROGON</span>
       </div>
       <nav class="sidebar-nav">
@@ -815,7 +851,7 @@ async function loadFeed() {
         </div>
         ${p.link?`<a class="post-link" href="${p.link}" target="_blank">View ↗</a>`:''}
       </div>
-      ${p.img?`<img class="post-img" src="${p.img}" loading="lazy" onerror="this.style.display='none'">`:''}
+      ${p.img?`<img class="post-img" src="${p.img}" loading="lazy">`:''}
       ${p.text?`<div class="post-text">${p.text.length>200?p.text.slice(0,200)+'…':p.text}</div>`:''}
       <div class="post-stats">
         <div class="post-stat">👍 ${p.likes||0}</div>
