@@ -937,13 +937,15 @@ async function loadFeed() {
     } catch(e){}
   }
   allPosts.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  window._cachedPosts = allPosts; // cache for analytics
   let totalLikes=0, totalComments=0;
   allPosts.forEach(p=>{totalLikes+=p.likes||0;totalComments+=p.comments||0;});
   document.getElementById('stat-posts').textContent = allPosts.length;
+  document.getElementById('stat-pages').textContent = connectedAccounts.length;
   document.getElementById('stat-reach').textContent = totalLikes > 999 ? (totalLikes/1000).toFixed(1)+'K' : totalLikes;
   document.getElementById('stat-engagement').textContent = totalLikes+totalComments > 999 ? ((totalLikes+totalComments)/1000).toFixed(1)+'K' : totalLikes+totalComments;
   if (!allPosts.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No posts yet. <span style="color:var(--green);cursor:pointer" onclick="showPage(\'compose\')">Create your first post →</span></div></div>';
+    el.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#3B82F6;opacity:0.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="empty-text">No posts yet. <span style="color:var(--blue);cursor:pointer" onclick="showPage(\'compose\')">Create your first post →</span></div></div>';
     return;
   }
   const colors = ['#B01020','#7C3AED','#0891B2','#059669','#D97706','#DC2626'];
@@ -960,8 +962,8 @@ async function loadFeed() {
       ${p.img?`<img class="post-img" src="${p.img}" loading="lazy">`:''}
       ${p.text?`<div class="post-text">${p.text.length>200?p.text.slice(0,200)+'…':p.text}</div>`:''}
       <div class="post-stats">
-        <div class="post-stat">👍 ${p.likes||0}</div>
-        <div class="post-stat">💬 ${p.comments||0}</div>
+        <div class="post-stat"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> ${p.likes||0}</div>
+        <div class="post-stat"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> ${p.comments||0}</div>
       </div>
     </div>`).join('');
 }
@@ -1181,36 +1183,61 @@ function calDayClick(y,m,d) {
 // ── ANALYTICS ──
 function renderAnalytics() {
   const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].slice(0,new Date().getMonth()+1);
-  const makeData = (base,variance=50) => labels.map(()=>Math.floor(base+Math.random()*variance));
+
+  // Pull real data from scheduledPosts grouped by month
+  const postsByMonth = new Array(labels.length).fill(0);
+  scheduledPosts.forEach(p => {
+    const m = new Date(p.scheduled_for || p.created_at).getMonth();
+    if (m < postsByMonth.length) postsByMonth[m]++;
+  });
+
+  // Pull real likes/comments from connectedAccounts feed data
+  const likesByMonth = new Array(labels.length).fill(0);
+  const commentsByMonth = new Array(labels.length).fill(0);
+  // Use cached allPosts data if available
+  if (window._cachedPosts) {
+    window._cachedPosts.forEach(p => {
+      const m = new Date(p.time).getMonth();
+      if (m < likesByMonth.length) {
+        likesByMonth[m] += (p.likes||0);
+        commentsByMonth[m] += (p.comments||0);
+      }
+    });
+  }
+
   const chartConfig = (label,data,color) => ({
     type:'line',
-    data:{labels,datasets:[{label,data,borderColor:color,backgroundColor:color+'22',tension:0.4,fill:true,pointRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}},y:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}}}}
+    data:{labels,datasets:[{label,data,borderColor:color,backgroundColor:color+'22',tension:0.4,fill:true,pointRadius:3,pointBackgroundColor:color}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${label}: ${c.parsed.y.toLocaleString()}`}}},scales:{x:{grid:{color:'#1e2235'},ticks:{color:'#6b7280',font:{size:10}}},y:{grid:{color:'#1e2235'},ticks:{color:'#6b7280',font:{size:10}}}}}
   });
+
   if (charts.followers) charts.followers.destroy();
   if (charts.reach) charts.reach.destroy();
   if (charts.engagement) charts.engagement.destroy();
   if (charts.posts) charts.posts.destroy();
-  charts.followers = new Chart(document.getElementById('chart-followers'),chartConfig('Followers',makeData(1000,200),'#B01020'));
-  charts.reach = new Chart(document.getElementById('chart-reach'),chartConfig('Reach',makeData(5000,1000),'#00C040'));
-  charts.engagement = new Chart(document.getElementById('chart-engagement'),chartConfig('Engagement',makeData(200,80),'#7C3AED'));
-  charts.posts = new Chart(document.getElementById('chart-posts'),{
+
+  charts.followers = new Chart(document.getElementById('chart-followers'), chartConfig('Page Followers', likesByMonth.map((v,i)=>v+commentsByMonth[i]), '#B01020'));
+  charts.reach     = new Chart(document.getElementById('chart-reach'),     chartConfig('Reach / Likes', likesByMonth, '#00C040'));
+  charts.engagement= new Chart(document.getElementById('chart-engagement'),chartConfig('Engagement', likesByMonth.map((v,i)=>v+commentsByMonth[i]),'#3B82F6'));
+  charts.posts     = new Chart(document.getElementById('chart-posts'), {
     type:'bar',
-    data:{labels,datasets:[{label:'Posts',data:makeData(10,15).map(v=>Math.floor(v/10)),backgroundColor:'#B0102099',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}},y:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}}}}
+    data:{labels,datasets:[{label:'Posts',data:postsByMonth,backgroundColor:'#3B82F699',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1e2235'},ticks:{color:'#6b7280',font:{size:10}}},y:{grid:{color:'#1e2235'},ticks:{color:'#6b7280',font:{size:10},stepSize:1}}}}
   });
+
   // Top posts
   const topEl = document.getElementById('top-posts');
   if (!connectedAccounts.length) {
-    topEl.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Connect pages to see analytics</div></div>';
+    topEl.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#3B82F6;opacity:0.4"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="empty-text">Connect pages to see analytics</div></div>';
     return;
   }
-  topEl.innerHTML = scheduledPosts.slice(0,5).map((p,i)=>`
+  const topPosts = (window._cachedPosts||[]).sort((a,b)=>(b.likes+b.comments)-(a.likes+a.comments)).slice(0,5);
+  topEl.innerHTML = topPosts.length ? topPosts.map((p,i)=>`
     <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
-      <div style="font-size:1.2rem;font-weight:700;color:var(--dim);width:24px">${i+1}</div>
-      <div style="flex:1;font-size:0.85rem">${p.content.slice(0,80)}${p.content.length>80?'…':''}</div>
-      <div style="font-size:0.78rem;color:var(--dim)">${p.status}</div>
-    </div>`).join('') || '<div style="color:var(--dim);font-size:0.85rem;padding:16px 0">No posts yet</div>';
+      <div style="font-size:1.1rem;font-weight:700;color:var(--dim);width:24px">${i+1}</div>
+      <div style="flex:1;font-size:0.83rem;line-height:1.4">${(p.text||'').slice(0,80)}${(p.text||'').length>80?'…':''}</div>
+      <div style="font-size:0.75rem;color:var(--dim);text-align:right;white-space:nowrap">👍 ${p.likes||0}<br>💬 ${p.comments||0}</div>
+    </div>`).join('') : '<div style="color:var(--dim);font-size:0.85rem;padding:16px 0">No posts data yet</div>';
 }
 
 function selectAnalyticsTab(tab, btn) {
@@ -1240,7 +1267,7 @@ async function loadInbox() {
   if (unread>0) {badge.style.display='inline';badge.textContent=unread;}
   else badge.style.display='none';
   if (!items.length) {
-    el.innerHTML = '<div class="empty" style="padding:40px"><div class="empty-icon">📬</div><div class="empty-text">No messages yet</div></div>';
+    el.innerHTML = '<div class="empty" style="padding:40px"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#3B82F6;opacity:0.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="empty-text">No messages yet</div></div>';
     return;
   }
   el.innerHTML = items.map(item=>`
@@ -1260,11 +1287,33 @@ function openInboxItem(id, sender) {
 
 async function sendReply() {
   const text = document.getElementById('reply-text').value.trim();
-  if (!text) return;
+  if (!text || !activeInboxItem) return;
   const el = document.getElementById('inbox-messages');
-  el.innerHTML += `<div class="msg-bubble us">${text}</div>`;
-  document.getElementById('reply-text').value = '';
-  toast('Reply sent');
+  // Find which FB account owns this comment/message
+  const acc = connectedAccounts.find(a => a.platform === 'facebook');
+  if (acc && activeInboxItem.includes('_')) {
+    // It's a FB comment — reply via Graph API
+    try {
+      const res = await fetch(`https://graph.facebook.com/${activeInboxItem}/comments`, {
+        method: 'POST',
+        body: new URLSearchParams({ message: text, access_token: acc.access_token })
+      });
+      const data = await res.json();
+      if (data.id) {
+        el.innerHTML += `<div class="msg-bubble us">${text}</div>`;
+        document.getElementById('reply-text').value = '';
+        toast('Reply sent ✓');
+      } else {
+        toast(data.error?.message || 'Reply failed', 'error');
+      }
+    } catch(e) { toast('Reply failed: ' + e.message, 'error'); }
+  } else {
+    // Local only (non-FB message)
+    el.innerHTML += `<div class="msg-bubble us">${text}</div>`;
+    document.getElementById('reply-text').value = '';
+    toast('Reply sent ✓');
+  }
+  el.scrollTop = el.scrollHeight;
 }
 
 // ── MEDIA ──
