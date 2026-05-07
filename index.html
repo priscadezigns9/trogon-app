@@ -247,6 +247,26 @@ input,textarea,select{font-family:inherit}
 </head>
 <body>
 
+<div id="setup-screen" style="position:fixed;inset:0;background:#0f1117;z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:#1a1d2e;border:1px solid #2a2d3a;border-radius:12px;padding:48px 40px;width:100%;max-width:480px">
+    <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:32px">
+      <span style="font-size:1.8rem;font-weight:700;letter-spacing:3px;color:#e8eaf6">TROGON</span>
+    </div>
+    <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;text-align:center;color:#e8eaf6">First Time Setup</div>
+    <div style="font-size:0.85rem;color:#8b8fa8;text-align:center;margin-bottom:28px">Enter your API keys once. They are saved locally on this device.</div>
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:0.72rem;font-weight:600;color:#8b8fa8;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Supabase Anon Key</label>
+      <input id="setup-sb-key" type="password" placeholder="eyJ..." style="width:100%;background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:11px 14px;color:#e8eaf6;font-size:0.88rem;font-family:inherit">
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:0.72rem;font-weight:600;color:#8b8fa8;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Groq API Key</label>
+      <input id="setup-groq-key" type="password" placeholder="gsk_..." style="width:100%;background:#0f1117;border:1px solid #2a2d3a;border-radius:6px;padding:11px 14px;color:#e8eaf6;font-size:0.88rem;font-family:inherit">
+    </div>
+    <button onclick="saveSetup()" style="width:100%;background:#00C040;color:#0f1117;padding:12px;border-radius:6px;font-weight:700;font-size:0.9rem;border:none;cursor:pointer;font-family:inherit">Save & Continue</button>
+  </div>
+</div>
+
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -1150,6 +1170,43 @@ if (FB_APP_ID !== 'FB_APP_ID_PLACEHOLDER') {
   };
   (function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="https://connect.facebook.net/en_US/sdk.js";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));
 }
+
+// ── KEY SETUP ──
+function loadSavedKeys() {
+  const sbKey = localStorage.getItem('trogon_sb_key');
+  const groqKey = localStorage.getItem('trogon_groq_key');
+  if (sbKey && sbKey.startsWith('eyJ')) {
+    window._GROQ_KEY = groqKey || GROQ_KEY;
+    // Re-init supabase with real key
+    try { window.sb = createClient(SUPABASE_URL, sbKey); } catch(e){}
+    return true;
+  }
+  return false;
+}
+
+function saveSetup() {
+  const sbKey = document.getElementById('setup-sb-key').value.trim();
+  const groqKey = document.getElementById('setup-groq-key').value.trim();
+  if (!sbKey || !groqKey) { toast('Please enter both keys','error'); return; }
+  localStorage.setItem('trogon_sb_key', sbKey);
+  localStorage.setItem('trogon_groq_key', groqKey);
+  location.reload();
+}
+
+// Override GROQ_KEY getter to use saved key
+Object.defineProperty(window, 'GROQ_KEY', {
+  get: function() { return localStorage.getItem('trogon_groq_key') || 'GROQ_KEY_PLACEHOLDER'; },
+  configurable: true
+});
+
+// Check keys on load
+window.addEventListener('DOMContentLoaded', function() {
+  if (!loadSavedKeys()) {
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('auth-screen').style.display = 'none';
+  }
+});
+
 </script>
 </body>
 </html>
