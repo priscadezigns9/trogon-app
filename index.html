@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trogon — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d2e;--surface2:#22263a;
+  --red:#B01020;--green:#00C040;--green2:#00a835;
+  --text:#e8eaf6;--dim:#8b8fa8;--border:#2a2d3a;
+  --sidebar:240px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;font-family:inherit}
+input,textarea,select{font-family:inherit}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast-item{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);
+  padding:12px 18px;border-radius:6px;font-size:0.85rem;animation:fadeIn 0.2s ease;max-width:300px}
+.toast-item.error{border-left-color:var(--red)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px 40px;width:100%;max-width:420px}
+.auth-logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:32px}
+.auth-logo img{height:44px}
+.auth-logo span{font-size:1.6rem;font-weight:700;letter-spacing:2px;color:var(--text)}
+.auth-title{font-size:1.4rem;font-weight:600;margin-bottom:8px;text-align:center}
+.auth-sub{font-size:0.85rem;color:var(--dim);text-align:center;margin-bottom:32px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:0.78rem;font-weight:500;color:var(--dim);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase}
+.field input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:11px 14px;color:var(--text);font-size:0.9rem;transition:border 0.2s}
+.field input:focus{outline:none;border-color:var(--green)}
+.btn-green{width:100%;background:var(--green);color:#0f1117;padding:12px;border-radius:6px;font-weight:700;font-size:0.9rem;letter-spacing:0.5px;transition:background 0.2s}
+.btn-green:hover{background:var(--green2)}
+.auth-toggle{text-align:center;margin-top:20px;font-size:0.85rem;color:var(--dim)}
+.auth-toggle span{color:var(--green);cursor:pointer;font-weight:500}
+.auth-toggle span:hover{text-decoration:underline}
+
+/* ── LAYOUT ── */
+#app{display:none}
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo img{height:32px}
+.sidebar-logo span{font-size:1.1rem;font-weight:700;letter-spacing:2px}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;color:var(--dim);font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.15s;position:relative}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--text);background:var(--surface2)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);border-radius:0 2px 2px 0}
+.nav-icon{font-size:1.1rem;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:10px}
+.sidebar-bottom{padding:12px 0;border-top:1px solid var(--border)}
+
+/* ── MAIN CONTENT ── */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh}
+.page{display:none;padding:32px}
+.page.active{display:block}
+.page-header{margin-bottom:28px}
+.page-title{font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:0.85rem;color:var(--dim)}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.stat-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-value{font-size:1.8rem;font-weight:700;line-height:1}
+.stat-change{font-size:0.75rem;color:var(--green);margin-top:6px}
+
+/* ── FEED ── */
+.feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.feed-header h3{font-size:1rem;font-weight:600}
+.btn-sm{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:6px;font-size:0.8rem;font-weight:500;transition:all 0.15s}
+.btn-sm:hover{border-color:var(--green);color:var(--green)}
+.post-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px}
+.post-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.page-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0}
+.post-meta{flex:1}
+.post-page-name{font-weight:600;font-size:0.88rem}
+.post-time{font-size:0.75rem;color:var(--dim)}
+.post-text{font-size:0.88rem;line-height:1.6;color:var(--text);margin-bottom:10px}
+.post-img{width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-bottom:10px}
+.post-stats{display:flex;gap:16px}
+.post-stat{font-size:0.78rem;color:var(--dim)}
+.post-link{font-size:0.75rem;color:var(--green);margin-left:auto}
+
+/* ── COMPOSE ── */
+.compose-grid{display:grid;grid-template-columns:1fr 340px;gap:20px}
+.compose-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px}
+.compose-box h3{font-size:1rem;font-weight:600;margin-bottom:16px}
+.compose-textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;color:var(--text);font-size:0.9rem;line-height:1.6;resize:vertical;min-height:160px;transition:border 0.2s}
+.compose-textarea:focus{outline:none;border-color:var(--green)}
+.char-count{font-size:0.75rem;color:var(--dim);text-align:right;margin-top:6px}
+.ai-row{display:flex;gap:8px;margin:12px 0}
+.ai-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-size:0.85rem}
+.ai-input:focus{outline:none;border-color:var(--green)}
+.btn-ai{background:var(--red);color:#fff;padding:10px 16px;border-radius:6px;font-size:0.82rem;font-weight:600;white-space:nowrap;transition:background 0.2s}
+.btn-ai:hover{background:#8a0c18}
+.btn-ai:disabled{opacity:0.5}
+.tone-select{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:0.82rem;margin-left:8px}
+.section-label{font-size:0.72rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
+.page-checks{display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto}
+.page-check{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s}
+.page-check:hover{background:var(--surface2)}
+.page-check input{accent-color:var(--green)}
+.page-check-name{font-size:0.85rem}
+.schedule-row{display:flex;gap:8px;margin-top:12px}
+.schedule-row input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-size:0.85rem}
+.compose-actions{display:flex;gap:10px;margin-top:16px}
+.btn-post{flex:1;background:var(--green);color:#0f1117;padding:11px;border-radius:6px;font-weight:700;font-size:0.88rem;transition:background 0.2s}
+.btn-post:hover{background:var(--green2)}
+.btn-schedule{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px;border-radius:6px;font-weight:600;font-size:0.88rem}
+.preview-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px}
+.preview-post{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:12px}
+
+/* ── CALENDAR ── */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.cal-nav{display:flex;align-items:center;gap:12px}
+.cal-month{font-size:1.1rem;font-weight:600}
+.cal-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:6px;font-size:1rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day-header{text-align:center;font-size:0.72rem;font-weight:600;color:var(--dim);padding:8px 0;text-transform:uppercase}
+.cal-day{background:var(--surface);border:1px solid var(--border);border-radius:6px;min-height:80px;padding:8px;cursor:pointer;transition:border 0.15s}
+.cal-day:hover{border-color:var(--green)}
+.cal-day.today{border-color:var(--red)}
+.cal-day.other-month{opacity:0.3}
+.cal-day-num{font-size:0.78rem;font-weight:600;margin-bottom:4px}
+.cal-post-dot{background:var(--red);color:#fff;font-size:0.65rem;padding:2px 6px;border-radius:3px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-post-dot.scheduled{background:var(--green);color:#0f1117}
+
+/* ── ANALYTICS ── */
+.analytics-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{background:var(--surface);border:1px solid var(--border);color:var(--dim);padding:8px 16px;border-radius:6px;font-size:0.82rem;font-weight:500;transition:all 0.15s}
+.tab-btn.active{background:var(--red);border-color:var(--red);color:#fff}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.chart-title{font-size:0.85rem;font-weight:600;margin-bottom:16px;color:var(--dim)}
+.chart-wrap{position:relative;height:180px}
+
+/* ── INBOX ── */
+.inbox-layout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 140px)}
+.inbox-list{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow-y:auto}
+.inbox-item{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s}
+.inbox-item:hover,.inbox-item.active{background:var(--surface2)}
+.inbox-item.unread .inbox-sender{font-weight:700}
+.inbox-sender{font-size:0.88rem;margin-bottom:2px}
+.inbox-preview{font-size:0.78rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inbox-time{font-size:0.7rem;color:var(--dim);float:right}
+.inbox-detail{background:var(--surface);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column}
+.inbox-detail-header{padding:18px 20px;border-bottom:1px solid var(--border)}
+.inbox-messages{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.msg-bubble{max-width:70%;padding:10px 14px;border-radius:10px;font-size:0.87rem;line-height:1.5}
+.msg-bubble.them{background:var(--surface2);align-self:flex-start}
+.msg-bubble.us{background:var(--green);color:#0f1117;align-self:flex-end}
+.inbox-reply{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px}
+.inbox-reply textarea{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);font-size:0.85rem;resize:none;height:60px}
+.inbox-reply textarea:focus{outline:none;border-color:var(--green)}
+
+/* ── MEDIA ── */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:48px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:20px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:rgba(0,192,64,0.04)}
+.upload-icon{font-size:2.5rem;margin-bottom:12px}
+.upload-text{font-size:0.9rem;color:var(--dim)}
+.upload-text span{color:var(--green);font-weight:500}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.media-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:1px solid var(--border)}
+.media-item img,.media-item video{width:100%;height:100%;object-fit:cover}
+.media-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;transition:opacity 0.2s}
+.media-item:hover .media-overlay{opacity:1}
+.media-action{background:var(--green);color:#0f1117;border:none;padding:6px 12px;border-radius:4px;font-size:0.75rem;font-weight:600;cursor:pointer}
+
+/* ── CONNECT ── */
+.connect-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px}
+.platform-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px}
+.platform-icon{font-size:2rem;margin-bottom:12px}
+.platform-name{font-size:1rem;font-weight:600;margin-bottom:4px}
+.platform-desc{font-size:0.8rem;color:var(--dim);margin-bottom:16px}
+.btn-connect{width:100%;background:var(--green);color:#0f1117;padding:10px;border-radius:6px;font-weight:700;font-size:0.85rem;transition:background 0.2s}
+.btn-connect:hover{background:var(--green2)}
+.btn-connect.connected{background:var(--surface2);border:1px solid var(--border);color:var(--dim)}
+.connected-pages{margin-top:20px}
+.connected-page{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+.connected-page-name{flex:1;font-size:0.88rem;font-weight:500}
+.btn-disconnect{background:transparent;border:1px solid var(--border);color:var(--dim);padding:5px 10px;border-radius:4px;font-size:0.75rem;transition:all 0.15s}
+.btn-disconnect:hover{border-color:var(--red);color:var(--red)}
+
+/* ── SETTINGS ── */
+.settings-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px}
+.settings-section h3{font-size:1rem;font-weight:600;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:0.88rem;font-weight:500}
+.settings-value{font-size:0.85rem;color:var(--dim)}
+.avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.avatar-circle{width:72px;height:72px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;overflow:hidden}
+.avatar-circle img{width:100%;height:100%;object-fit:cover}
+.btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);padding:9px 18px;border-radius:6px;font-size:0.85rem;font-weight:600;transition:all 0.2s}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:6px;font-size:0.85rem;font-weight:500;transition:all 0.2s}
+.btn-outline:hover{border-color:var(--text)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--dim)}
+.empty-icon{font-size:3rem;margin-bottom:16px}
+.empty-text{font-size:0.9rem;line-height:1.6}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:28px;right:28px;width:52px;height:52px;border-radius:50%;background:var(--green);color:#0f1117;font-size:1.6rem;font-weight:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,192,64,0.35);transition:all 0.2s;z-index:40}
+.fab:hover{transform:scale(1.08);background:var(--green2)}
+
+/* ── LOADING ── */
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box{padding:48px;text-align:center}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;max-width:480px;width:90%}
+.modal h3{font-size:1.1rem;font-weight:600;margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .compose-grid{grid-template-columns:1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .inbox-layout{grid-template-columns:1fr}
+  .fab{bottom:80px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <img src="/trogon/trogon_logo.png" alt="Trogon" onerror="this.style.display='none'">
+      <span>TROGON</span>
+    </div>
+    <div class="auth-title" id="auth-title">Welcome back</div>
+    <div class="auth-sub" id="auth-sub">Sign in to your Trogon account</div>
+    <div class="field" id="name-field" style="display:none">
+      <label>Full Name</label>
+      <input type="text" id="auth-name" placeholder="Your name">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@email.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••">
+    </div>
+    <button class="btn-green" id="auth-btn" onclick="handleAuth()">Sign In</button>
+    <div class="auth-toggle">
+      <span id="auth-toggle-text">Don't have an account? <span onclick="toggleAuth()">Create one</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="/trogon/trogon_logo.png" alt="Trogon" onerror="this.style.display='none'">
+        <span>TROGON</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" onclick="showPage('home')"><span class="nav-icon">🏠</span> Home</div>
+        <div class="nav-item" onclick="showPage('compose')"><span class="nav-icon">✏️</span> Compose</div>
+        <div class="nav-item" onclick="showPage('calendar')"><span class="nav-icon">📅</span> Calendar</div>
+        <div class="nav-item" onclick="showPage('analytics')"><span class="nav-icon">📊</span> Analytics</div>
+        <div class="nav-item" onclick="showPage('inbox')"><span class="nav-icon">📬</span> Inbox <span class="nav-badge" id="inbox-badge" style="display:none">0</span></div>
+        <div class="nav-item" onclick="showPage('media')"><span class="nav-icon">🖼️</span> Media</div>
+        <div class="nav-item" onclick="showPage('connect')"><span class="nav-icon">🔗</span> Connect</div>
+        <div class="nav-item" onclick="showPage('settings')"><span class="nav-icon">⚙️</span> Settings</div>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span> Logout</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- HOME -->
+      <div class="page active" id="page-home">
+        <div class="page-header">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub" id="home-greeting">Good morning!</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Pages Connected</div><div class="stat-value" id="stat-pages">—</div><div class="stat-change">↑ All active</div></div>
+          <div class="stat-card"><div class="stat-label">Posts This Month</div><div class="stat-value" id="stat-posts">—</div><div class="stat-change">↑ Scheduled + published</div></div>
+          <div class="stat-card"><div class="stat-label">Total Reach</div><div class="stat-value" id="stat-reach">—</div><div class="stat-change">↑ Last 30 days</div></div>
+          <div class="stat-card"><div class="stat-label">Engagement</div><div class="stat-value" id="stat-engagement">—</div><div class="stat-change">↑ Likes + comments</div></div>
+        </div>
+        <div class="feed-header">
+          <h3>Recent Posts — All Pages</h3>
+          <button class="btn-sm" onclick="loadFeed()">↻ Refresh</button>
+        </div>
+        <div id="feed-container"><div class="loading-box"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- COMPOSE -->
+      <div class="page" id="page-compose">
+        <div class="page-header">
+          <div class="page-title">Compose</div>
+          <div class="page-sub">Write, schedule, and publish to your pages</div>
+        </div>
+        <div class="compose-grid">
+          <div>
+            <div class="compose-box">
+              <h3>✏️ Write your post</h3>
+              <textarea class="compose-textarea" id="compose-text" placeholder="What do you want to post?" oninput="updatePreview();updateCharCount()"></textarea>
+              <div class="char-count"><span id="char-count">0</span> characters</div>
+              <div class="section-label">✨ AI Caption Generator</div>
+              <div class="ai-row">
+                <input class="ai-input" id="ai-prompt" placeholder="Describe your post idea...">
+                <select class="tone-select" id="ai-tone">
+                  <option value="engaging">Engaging</option>
+                  <option value="professional">Professional</option>
+                  <option value="casual">Casual</option>
+                  <option value="funny">Funny</option>
+                  <option value="inspirational">Inspirational</option>
+                </select>
+                <button class="btn-ai" id="ai-btn" onclick="generateCaption()">✨ Generate</button>
+              </div>
+              <div class="section-label">📄 Post to Pages</div>
+              <div class="page-checks" id="compose-pages"><div style="color:var(--dim);font-size:0.85rem">No pages connected. <span style="color:var(--green);cursor:pointer" onclick="showPage('connect')">Connect pages →</span></div></div>
+              <div class="section-label">🕐 Schedule</div>
+              <div class="schedule-row">
+                <input type="datetime-local" id="schedule-time">
+              </div>
+              <div class="compose-actions">
+                <button class="btn-post" onclick="publishNow()">🚀 Post Now</button>
+                <button class="btn-schedule" onclick="schedulePost()">📅 Schedule</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="preview-box">
+              <h3>👁️ Preview</h3>
+              <div class="preview-post">
+                <div class="post-card-header">
+                  <div class="page-avatar" style="background:var(--red)">PG</div>
+                  <div class="post-meta">
+                    <div class="post-page-name">Your Page</div>
+                    <div class="post-time">Just now</div>
+                  </div>
+                </div>
+                <div class="post-text" id="preview-text" style="color:var(--dim);font-style:italic">Your post will appear here...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div class="page" id="page-calendar">
+        <div class="page-header">
+          <div class="page-title">Content Calendar</div>
+          <div class="page-sub">Plan and visualise your content schedule</div>
+        </div>
+        <div class="cal-header">
+          <div class="cal-nav">
+            <button class="cal-btn" onclick="changeMonth(-1)">‹</button>
+            <div class="cal-month" id="cal-month-label">May 2026</div>
+            <button class="cal-btn" onclick="changeMonth(1)">›</button>
+          </div>
+          <button class="btn-sm" onclick="showPage('compose')">+ New Post</button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div>
+          <div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div><div class="cal-day-header">Sat</div>
+        </div>
+        <div class="cal-grid" id="cal-days" style="margin-top:2px"></div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="page" id="page-analytics">
+        <div class="page-header">
+          <div class="page-title">Analytics</div>
+          <div class="page-sub">Track performance across all your pages</div>
+        </div>
+        <div class="analytics-tabs" id="analytics-tabs">
+          <button class="tab-btn active" onclick="selectAnalyticsTab('all',this)">All Pages</button>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-box"><div class="chart-title">Follower Growth</div><div class="chart-wrap"><canvas id="chart-followers"></canvas></div></div>
+          <div class="chart-box"><div class="chart-title">Reach (Last 30 Days)</div><div class="chart-wrap"><canvas id="chart-reach"></canvas></div></div>
+          <div class="chart-box"><div class="chart-title">Engagement Rate</div><div class="chart-wrap"><canvas id="chart-engagement"></canvas></div></div>
+          <div class="chart-box"><div class="chart-title">Post Activity</div><div class="chart-wrap"><canvas id="chart-posts"></canvas></div></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px">
+          <div style="font-size:0.85rem;font-weight:600;margin-bottom:16px;color:var(--dim)">Top Performing Posts</div>
+          <div id="top-posts"><div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Connect pages to see analytics</div></div></div>
+        </div>
+      </div>
+
+      <!-- INBOX -->
+      <div class="page" id="page-inbox">
+        <div class="page-header">
+          <div class="page-title">Inbox</div>
+          <div class="page-sub">Comments and messages from all pages</div>
+        </div>
+        <div class="inbox-layout">
+          <div class="inbox-list" id="inbox-list"><div class="empty" style="padding:40px"><div class="empty-icon">📬</div><div class="empty-text">No messages yet</div></div></div>
+          <div class="inbox-detail" id="inbox-detail">
+            <div class="inbox-detail-header"><div style="font-weight:600">Select a conversation</div></div>
+            <div class="inbox-messages" id="inbox-messages"></div>
+            <div class="inbox-reply">
+              <textarea id="reply-text" placeholder="Write a reply..."></textarea>
+              <button class="btn-post" style="width:auto;padding:0 20px" onclick="sendReply()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDIA -->
+      <div class="page" id="page-media">
+        <div class="page-header">
+          <div class="page-title">Media Library</div>
+          <div class="page-sub">Upload and manage your images and videos</div>
+        </div>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('media-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text"><span>Click to upload</span> or drag and drop<br>PNG, JPG, GIF, MP4 up to 50MB</div>
+          <input type="file" id="media-input" style="display:none" multiple accept="image/*,video/*" onchange="uploadMedia(this.files)">
+        </div>
+        <div class="media-grid" id="media-grid"><div class="empty"><div class="empty-icon">🖼️</div><div class="empty-text">No media uploaded yet</div></div></div>
+      </div>
+
+      <!-- CONNECT -->
+      <div class="page" id="page-connect">
+        <div class="page-header">
+          <div class="page-title">Connect Accounts</div>
+          <div class="page-sub">Connect your social media pages to manage them here</div>
+        </div>
+        <div class="connect-grid">
+          <div class="platform-card">
+            <div class="platform-icon">📘</div>
+            <div class="platform-name">Facebook</div>
+            <div class="platform-desc">Connect your Facebook pages to post, schedule, and view analytics</div>
+            <button class="btn-connect" id="fb-connect-btn" onclick="connectFacebook()">Connect Facebook</button>
+          </div>
+          <div class="platform-card">
+            <div class="platform-icon">📸</div>
+            <div class="platform-name">Instagram</div>
+            <div class="platform-desc">Connect via Facebook — requires a Facebook Page linked to your Instagram</div>
+            <button class="btn-connect btn-outline" onclick="toast('Instagram connects automatically with Facebook','info')">Via Facebook</button>
+          </div>
+          <div class="platform-card">
+            <div class="platform-icon">🎵</div>
+            <div class="platform-name">TikTok</div>
+            <div class="platform-desc">Coming soon — TikTok business account integration</div>
+            <button class="btn-connect btn-outline" disabled style="opacity:0.4">Coming Soon</button>
+          </div>
+          <div class="platform-card">
+            <div class="platform-icon">💼</div>
+            <div class="platform-name">LinkedIn</div>
+            <div class="platform-desc">Coming soon — LinkedIn company page integration</div>
+            <button class="btn-connect btn-outline" disabled style="opacity:0.4">Coming Soon</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:1rem;font-weight:600;margin-bottom:16px">Connected Pages</div>
+          <div id="connected-pages-list"><div class="empty"><div class="empty-icon">🔗</div><div class="empty-text">No pages connected yet. Connect Facebook above to get started.</div></div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <div class="page-title">Settings</div>
+          <div class="page-sub">Manage your account and preferences</div>
+        </div>
+        <div class="settings-section">
+          <h3>Profile</h3>
+          <div class="avatar-upload">
+            <div class="avatar-circle" id="settings-avatar">P</div>
+            <button class="btn-outline" onclick="document.getElementById('avatar-input').click()">Change Photo</button>
+            <input type="file" id="avatar-input" style="display:none" accept="image/*" onchange="uploadAvatar(this)">
+          </div>
+          <div class="field"><label>Full Name</label><input type="text" id="settings-name" placeholder="Your name"></div>
+          <div class="field"><label>Email</label><input type="email" id="settings-email" placeholder="you@email.com" disabled style="opacity:0.5"></div>
+          <button class="btn-green" style="width:auto;padding:10px 24px" onclick="saveProfile()">Save Changes</button>
+        </div>
+        <div class="settings-section">
+          <h3>Change Password</h3>
+          <div class="field"><label>New Password</label><input type="password" id="new-password" placeholder="Min 6 characters"></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="confirm-password" placeholder="Repeat password"></div>
+          <button class="btn-green" style="width:auto;padding:10px 24px" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="settings-section">
+          <h3>Plan</h3>
+          <div class="settings-row"><div class="settings-label">Current Plan</div><div class="settings-value" id="settings-plan">Basic</div></div>
+          <div class="settings-row"><div class="settings-label">Pages Connected</div><div class="settings-value" id="settings-pages-count">0</div></div>
+        </div>
+        <div class="settings-section">
+          <h3>Danger Zone</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn-outline" onclick="logout()">Sign Out</button>
+            <button class="btn-danger" onclick="confirmDeleteAccount()">Delete Account</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="showPage('compose')" title="New Post">+</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Confirm</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" id="modal-confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SUPABASE_URL = 'https://sazhdnqzaqpqcralmthh.supabase.co';
+const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';
+const GROQ_KEY = 'GROQ_KEY_PLACEHOLDER';
+const FB_APP_ID = 'FB_APP_ID_PLACEHOLDER';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let connectedAccounts = [];
+let scheduledPosts = [];
+let calMonth = new Date();
+let charts = {};
+let activeInboxItem = null;
+
+// ── TOAST ──
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = 'toast-item' + (type==='error'?' error':'');
+  el.textContent = msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+
+// ── AUTH ──
+let isSignUp = false;
+function toggleAuth() {
+  isSignUp = !isSignUp;
+  document.getElementById('auth-title').textContent = isSignUp ? 'Create account' : 'Welcome back';
+  document.getElementById('auth-sub').textContent = isSignUp ? 'Start managing your social media' : 'Sign in to your Trogon account';
+  document.getElementById('auth-btn').textContent = isSignUp ? 'Create Account' : 'Sign In';
+  document.getElementById('name-field').style.display = isSignUp ? 'block' : 'none';
+  document.getElementById('auth-toggle-text').innerHTML = isSignUp
+    ? 'Already have an account? <span onclick="toggleAuth()">Sign in</span>'
+    : 'Don\'t have an account? <span onclick="toggleAuth()">Create one</span>';
+}
+
+async function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name = document.getElementById('auth-name').value.trim();
+  if (!email || !password) { toast('Please fill in all fields','error'); return; }
+  const btn = document.getElementById('auth-btn');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    if (isSignUp) {
+      const {data,error} = await sb.auth.signUp({email,password,options:{data:{full_name:name}}});
+      if (error) throw error;
+      toast('Account created! Check your email to confirm.');
+    } else {
+      const {data,error} = await sb.auth.signInWithPassword({email,password});
+      if (error) throw error;
+      await onLogin(data.user);
+    }
+  } catch(e) {
+    toast(e.message,'error');
+  }
+  btn.textContent = isSignUp ? 'Create Account' : 'Sign In';
+  btn.disabled = false;
+}
+
+async function onLogin(user) {
+  currentUser = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const {data:profile} = await sb.from('profiles').select('*').eq('id',user.id).single();
+  const name = profile?.full_name || user.email.split('@')[0];
+  document.getElementById('home-greeting').textContent = `${greet}, ${name}! 👋`;
+  document.getElementById('settings-name').value = profile?.full_name || '';
+  document.getElementById('settings-email').value = user.email;
+  document.getElementById('settings-plan').textContent = profile?.plan || 'Basic';
+  const initials = name.charAt(0).toUpperCase();
+  document.getElementById('settings-avatar').textContent = initials;
+  await loadConnectedAccounts();
+  await loadFeed();
+  await loadScheduledPosts();
+  renderCalendar();
+  renderAnalytics();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// Check session on load
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) await onLogin(session.user);
+});
+
+// ── NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  const labels = ['home','compose','calendar','analytics','inbox','media','connect','settings'];
+  const idx = labels.indexOf(name);
+  if (idx>=0) items[idx].classList.add('active');
+  if (name==='calendar') renderCalendar();
+  if (name==='analytics') renderAnalytics();
+  if (name==='inbox') loadInbox();
+  if (name==='media') loadMedia();
+  if (name==='connect') renderConnectedPages();
+}
+
+// ── CONNECTED ACCOUNTS ──
+async function loadConnectedAccounts() {
+  if (!currentUser) return;
+  const {data} = await sb.from('connected_accounts').select('*').eq('user_id',currentUser.id);
+  connectedAccounts = data || [];
+  document.getElementById('stat-pages').textContent = connectedAccounts.length;
+  document.getElementById('settings-pages-count').textContent = connectedAccounts.length;
+  renderComposePagesSelector();
+  renderConnectedPages();
+}
+
+function renderComposePagesSelector() {
+  const el = document.getElementById('compose-pages');
+  if (!connectedAccounts.length) {
+    el.innerHTML = '<div style="color:var(--dim);font-size:0.85rem">No pages connected. <span style="color:var(--green);cursor:pointer" onclick="showPage(\'connect\')">Connect pages →</span></div>';
+    return;
+  }
+  el.innerHTML = connectedAccounts.map(a=>`
+    <label class="page-check">
+      <input type="checkbox" value="${a.id}" checked>
+      <div class="page-avatar" style="background:var(--red);width:28px;height:28px;font-size:0.65rem;flex-shrink:0">${a.account_name?.charAt(0)||'P'}</div>
+      <span class="page-check-name">${a.account_name||'Page'}</span>
+    </label>`).join('');
+}
+
+function renderConnectedPages() {
+  const el = document.getElementById('connected-pages-list');
+  if (!connectedAccounts.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔗</div><div class="empty-text">No pages connected yet.</div></div>';
+    return;
+  }
+  el.innerHTML = connectedAccounts.map(a=>`
+    <div class="connected-page">
+      <div class="page-avatar" style="background:var(--red);width:36px;height:36px;font-size:0.75rem;flex-shrink:0">${a.account_name?.charAt(0)||'P'}</div>
+      <div class="connected-page-name">${a.account_name}</div>
+      <div style="font-size:0.75rem;color:var(--dim)">${a.platform}</div>
+      <button class="btn-disconnect" onclick="disconnectPage('${a.id}')">Disconnect</button>
+    </div>`).join('');
+}
+
+// ── FACEBOOK CONNECT ──
+function connectFacebook() {
+  if (FB_APP_ID === 'FB_APP_ID_PLACEHOLDER') {
+    toast('Facebook App ID not configured yet','error'); return;
+  }
+  FB.login(async response => {
+    if (response.authResponse) {
+      const token = response.authResponse.accessToken;
+      // Get long-lived token
+      const pages = await fetchFBPages(token);
+      for (const page of pages) {
+        const {error} = await sb.from('connected_accounts').upsert({
+          user_id: currentUser.id,
+          platform: 'facebook',
+          account_id: page.id,
+          account_name: page.name,
+          access_token: page.access_token,
+        });
+        if (!error) toast(`Connected: ${page.name}`);
+      }
+      await loadConnectedAccounts();
+    }
+  }, {scope:'pages_show_list,pages_read_engagement,pages_manage_posts,pages_read_user_content'});
+}
+
+async function fetchFBPages(token) {
+  const res = await fetch(`https://graph.facebook.com/me/accounts?access_token=${token}`);
+  const data = await res.json();
+  return data.data || [];
+}
+
+async function disconnectPage(id) {
+  await sb.from('connected_accounts').delete().eq('id',id);
+  await loadConnectedAccounts();
+  toast('Page disconnected');
+}
+
+// ── FEED ──
+async function loadFeed() {
+  const el = document.getElementById('feed-container');
+  el.innerHTML = '<div class="loading-box"><div class="spinner"></div></div>';
+  let allPosts = [];
+  // Load from Supabase
+  const {data} = await sb.from('posts').select('*').eq('user_id',currentUser?.id).order('created_at',{ascending:false}).limit(20);
+  if (data) {
+    allPosts = data.map(p=>({
+      id:p.id, page:'Scheduled Post', text:p.content,
+      time:p.created_at, status:p.status, platform:'trogon'
+    }));
+  }
+  // Load from Facebook
+  for (const acc of connectedAccounts.filter(a=>a.platform==='facebook')) {
+    try {
+      const res = await fetch(`https://graph.facebook.com/${acc.account_id}/posts?fields=message,created_time,full_picture,likes.summary(true),comments.summary(true),permalink_url&limit=5&access_token=${acc.access_token}`);
+      const fbData = await res.json();
+      if (fbData.data) {
+        fbData.data.forEach(p=>{
+          allPosts.push({
+            id:p.id, page:acc.account_name, text:p.message||'',
+            time:p.created_time, img:p.full_picture,
+            likes:p.likes?.summary?.total_count||0,
+            comments:p.comments?.summary?.total_count||0,
+            link:p.permalink_url, platform:'facebook'
+          });
+        });
+      }
+    } catch(e){}
+  }
+  allPosts.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  let totalLikes=0, totalComments=0;
+  allPosts.forEach(p=>{totalLikes+=p.likes||0;totalComments+=p.comments||0;});
+  document.getElementById('stat-posts').textContent = allPosts.length;
+  document.getElementById('stat-reach').textContent = totalLikes > 999 ? (totalLikes/1000).toFixed(1)+'K' : totalLikes;
+  document.getElementById('stat-engagement').textContent = totalLikes+totalComments > 999 ? ((totalLikes+totalComments)/1000).toFixed(1)+'K' : totalLikes+totalComments;
+  if (!allPosts.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No posts yet. <span style="color:var(--green);cursor:pointer" onclick="showPage(\'compose\')">Create your first post →</span></div></div>';
+    return;
+  }
+  const colors = ['#B01020','#7C3AED','#0891B2','#059669','#D97706','#DC2626'];
+  el.innerHTML = allPosts.map((p,i)=>`
+    <div class="post-card">
+      <div class="post-card-header">
+        <div class="page-avatar" style="background:${colors[i%colors.length]}">${p.page?.charAt(0)||'P'}</div>
+        <div class="post-meta">
+          <div class="post-page-name">${p.page}</div>
+          <div class="post-time">${timeAgo(p.time)}${p.status?' · '+p.status:''}</div>
+        </div>
+        ${p.link?`<a class="post-link" href="${p.link}" target="_blank">View ↗</a>`:''}
+      </div>
+      ${p.img?`<img class="post-img" src="${p.img}" loading="lazy" onerror="this.style.display='none'">`:''}
+      ${p.text?`<div class="post-text">${p.text.length>200?p.text.slice(0,200)+'…':p.text}</div>`:''}
+      <div class="post-stats">
+        <div class="post-stat">👍 ${p.likes||0}</div>
+        <div class="post-stat">💬 ${p.comments||0}</div>
+      </div>
+    </div>`).join('');
+}
+
+function timeAgo(t) {
+  if (!t) return '';
+  const diff = (Date.now()-new Date(t))/1000;
+  if (diff<60) return 'just now';
+  if (diff<3600) return Math.floor(diff/60)+'m ago';
+  if (diff<86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+// ── COMPOSE ──
+function updatePreview() {
+  const text = document.getElementById('compose-text').value;
+  document.getElementById('preview-text').textContent = text || 'Your post will appear here...';
+  document.getElementById('preview-text').style.fontStyle = text ? 'normal' : 'italic';
+  document.getElementById('preview-text').style.color = text ? 'var(--text)' : 'var(--dim)';
+}
+
+function updateCharCount() {
+  document.getElementById('char-count').textContent = document.getElementById('compose-text').value.length;
+}
+
+async function generateCaption() {
+  const prompt = document.getElementById('ai-prompt').value.trim();
+  const tone = document.getElementById('ai-tone').value;
+  if (!prompt) { toast('Describe your post idea first','error'); return; }
+  const btn = document.getElementById('ai-btn');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        messages:[{
+          role:'system',
+          content:`You are a social media expert. Write ${tone} captions with relevant hashtags. Keep it punchy and engaging. Return only the caption text and hashtags, nothing else.`
+        },{
+          role:'user',
+          content:`Write a ${tone} social media caption for: ${prompt}`
+        }],
+        max_tokens:300
+      })
+    });
+    const data = await res.json();
+    if (data.choices?.[0]?.message?.content) {
+      document.getElementById('compose-text').value = data.choices[0].message.content;
+      updatePreview(); updateCharCount();
+      toast('Caption generated! ✨');
+    }
+  } catch(e) { toast('AI error: '+e.message,'error'); }
+  btn.textContent = '✨ Generate'; btn.disabled = false;
+}
+
+function getSelectedAccountIds() {
+  return Array.from(document.querySelectorAll('#compose-pages input:checked')).map(el=>el.value);
+}
+
+async function publishNow() {
+  const content = document.getElementById('compose-text').value.trim();
+  if (!content) { toast('Write something first','error'); return; }
+  const selectedIds = getSelectedAccountIds();
+  if (!selectedIds.length) { toast('Select at least one page','error'); return; }
+  let published = 0;
+  for (const id of selectedIds) {
+    const acc = connectedAccounts.find(a=>a.id===id);
+    if (!acc) continue;
+    if (acc.platform==='facebook') {
+      try {
+        const res = await fetch(`https://graph.facebook.com/${acc.account_id}/feed`, {
+          method:'POST',
+          body: new URLSearchParams({message:content, access_token:acc.access_token})
+        });
+        const data = await res.json();
+        if (data.id) published++;
+        else toast(`Failed on ${acc.account_name}: ${data.error?.message||'Unknown error'}`,'error');
+      } catch(e) { toast('Post failed: '+e.message,'error'); }
+    }
+  }
+  // Save to Supabase
+  await sb.from('posts').insert({
+    user_id:currentUser.id, account_ids:selectedIds,
+    content, status:'published', published_at:new Date().toISOString(),
+    ai_generated:false
+  });
+  if (published > 0) toast(`Posted to ${published} page${published>1?'s':''}! 🚀`);
+  document.getElementById('compose-text').value='';
+  updatePreview(); updateCharCount();
+  await loadFeed();
+}
+
+async function schedulePost() {
+  const content = document.getElementById('compose-text').value.trim();
+  const schedTime = document.getElementById('schedule-time').value;
+  if (!content) { toast('Write something first','error'); return; }
+  if (!schedTime) { toast('Pick a date and time','error'); return; }
+  const selectedIds = getSelectedAccountIds();
+  if (!selectedIds.length) { toast('Select at least one page','error'); return; }
+  await sb.from('posts').insert({
+    user_id:currentUser.id, account_ids:selectedIds,
+    content, status:'scheduled', scheduled_for:new Date(schedTime).toISOString()
+  });
+  toast('Post scheduled! 📅');
+  document.getElementById('compose-text').value='';
+  document.getElementById('schedule-time').value='';
+  updatePreview(); updateCharCount();
+  await loadScheduledPosts();
+  renderCalendar();
+}
+
+// ── CALENDAR ──
+async function loadScheduledPosts() {
+  if (!currentUser) return;
+  const {data} = await sb.from('posts').select('*').eq('user_id',currentUser.id).in('status',['scheduled','published']).order('scheduled_for',{ascending:true});
+  scheduledPosts = data || [];
+}
+
+function renderCalendar() {
+  const year = calMonth.getFullYear(), month = calMonth.getMonth();
+  document.getElementById('cal-month-label').textContent = calMonth.toLocaleDateString('en',{month:'long',year:'numeric'});
+  const firstDay = new Date(year,month,1).getDay();
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  const daysInPrev = new Date(year,month,0).getDate();
+  const today = new Date();
+  const el = document.getElementById('cal-days');
+  let html = '';
+  // Prev month days
+  for (let i=firstDay-1;i>=0;i--) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${daysInPrev-i}</div></div>`;
+  }
+  for (let d=1;d<=daysInMonth;d++) {
+    const date = new Date(year,month,d);
+    const isToday = date.toDateString()===today.toDateString();
+    const dayPosts = scheduledPosts.filter(p=>{
+      const pd = new Date(p.scheduled_for||p.created_at);
+      return pd.getDate()===d && pd.getMonth()===month && pd.getFullYear()===year;
+    });
+    html += `<div class="cal-day${isToday?' today':''}" onclick="calDayClick(${year},${month},${d})">
+      <div class="cal-day-num">${d}</div>
+      ${dayPosts.slice(0,3).map(p=>`<div class="cal-post-dot${p.status==='scheduled'?' scheduled':''}">${p.content.slice(0,20)}</div>`).join('')}
+    </div>`;
+  }
+  // Fill remaining
+  const total = firstDay + daysInMonth;
+  const remaining = (7 - (total%7)) % 7;
+  for (let i=1;i<=remaining;i++) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
+  }
+  el.innerHTML = html;
+}
+
+function changeMonth(dir) {
+  calMonth.setMonth(calMonth.getMonth()+dir);
+  renderCalendar();
+}
+
+function calDayClick(y,m,d) {
+  const dt = new Date(y,m,d);
+  const iso = dt.toISOString().slice(0,16);
+  showPage('compose');
+  document.getElementById('schedule-time').value = iso;
+}
+
+// ── ANALYTICS ──
+function renderAnalytics() {
+  const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].slice(0,new Date().getMonth()+1);
+  const makeData = (base,variance=50) => labels.map(()=>Math.floor(base+Math.random()*variance));
+  const chartConfig = (label,data,color) => ({
+    type:'line',
+    data:{labels,datasets:[{label,data,borderColor:color,backgroundColor:color+'22',tension:0.4,fill:true,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}},y:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}}}}
+  });
+  if (charts.followers) charts.followers.destroy();
+  if (charts.reach) charts.reach.destroy();
+  if (charts.engagement) charts.engagement.destroy();
+  if (charts.posts) charts.posts.destroy();
+  charts.followers = new Chart(document.getElementById('chart-followers'),chartConfig('Followers',makeData(1000,200),'#B01020'));
+  charts.reach = new Chart(document.getElementById('chart-reach'),chartConfig('Reach',makeData(5000,1000),'#00C040'));
+  charts.engagement = new Chart(document.getElementById('chart-engagement'),chartConfig('Engagement',makeData(200,80),'#7C3AED'));
+  charts.posts = new Chart(document.getElementById('chart-posts'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Posts',data:makeData(10,15).map(v=>Math.floor(v/10)),backgroundColor:'#B0102099',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}},y:{grid:{color:'#2a2d3a'},ticks:{color:'#8b8fa8',font:{size:10}}}}}
+  });
+  // Top posts
+  const topEl = document.getElementById('top-posts');
+  if (!connectedAccounts.length) {
+    topEl.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Connect pages to see analytics</div></div>';
+    return;
+  }
+  topEl.innerHTML = scheduledPosts.slice(0,5).map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:1.2rem;font-weight:700;color:var(--dim);width:24px">${i+1}</div>
+      <div style="flex:1;font-size:0.85rem">${p.content.slice(0,80)}${p.content.length>80?'…':''}</div>
+      <div style="font-size:0.78rem;color:var(--dim)">${p.status}</div>
+    </div>`).join('') || '<div style="color:var(--dim);font-size:0.85rem;padding:16px 0">No posts yet</div>';
+}
+
+function selectAnalyticsTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── INBOX ──
+async function loadInbox() {
+  const el = document.getElementById('inbox-list');
+  // Load FB comments
+  let items = [];
+  for (const acc of connectedAccounts.filter(a=>a.platform==='facebook')) {
+    try {
+      const res = await fetch(`https://graph.facebook.com/${acc.account_id}/conversations?fields=participants,messages{message,created_time,from}&access_token=${acc.access_token}`);
+      const data = await res.json();
+      if (data.data) {
+        data.data.forEach(conv=>{
+          const msg = conv.messages?.data?.[0];
+          if (msg) items.push({id:conv.id,sender:msg.from?.name||'User',preview:msg.message||'',time:msg.created_time,acc});
+        });
+      }
+    } catch(e){}
+  }
+  const unread = items.length;
+  const badge = document.getElementById('inbox-badge');
+  if (unread>0) {badge.style.display='inline';badge.textContent=unread;}
+  else badge.style.display='none';
+  if (!items.length) {
+    el.innerHTML = '<div class="empty" style="padding:40px"><div class="empty-icon">📬</div><div class="empty-text">No messages yet</div></div>';
+    return;
+  }
+  el.innerHTML = items.map(item=>`
+    <div class="inbox-item unread" onclick="openInboxItem('${item.id}','${item.sender}')">
+      <div style="display:flex">
+        <div class="inbox-sender">${item.sender}</div>
+        <div class="inbox-time">${timeAgo(item.time)}</div>
+      </div>
+      <div class="inbox-preview">${item.preview}</div>
+    </div>`).join('');
+}
+
+function openInboxItem(id, sender) {
+  activeInboxItem = id;
+  document.getElementById('inbox-detail').querySelector('.inbox-detail-header div').textContent = sender;
+}
+
+async function sendReply() {
+  const text = document.getElementById('reply-text').value.trim();
+  if (!text) return;
+  const el = document.getElementById('inbox-messages');
+  el.innerHTML += `<div class="msg-bubble us">${text}</div>`;
+  document.getElementById('reply-text').value = '';
+  toast('Reply sent');
+}
+
+// ── MEDIA ──
+async function loadMedia() {
+  const {data} = await sb.from('media').select('*').eq('user_id',currentUser?.id).order('created_at',{ascending:false});
+  const el = document.getElementById('media-grid');
+  if (!data?.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🖼️</div><div class="empty-text">No media uploaded yet</div></div>';
+    return;
+  }
+  el.innerHTML = data.map(m=>`
+    <div class="media-item">
+      <img src="${m.file_url}" alt="${m.file_name}" loading="lazy">
+      <div class="media-overlay">
+        <button class="media-action" onclick="insertMedia('${m.file_url}')">Use</button>
+        <button class="media-action" style="background:var(--red);color:#fff" onclick="deleteMedia('${m.id}')">Del</button>
+      </div>
+    </div>`).join('');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  uploadMedia(e.dataTransfer.files);
+}
+
+async function uploadMedia(files) {
+  if (!files?.length) return;
+  for (const file of files) {
+    const path = `${currentUser.id}/${Date.now()}_${file.name}`;
+    const {data,error} = await sb.storage.from('media').upload(path,file);
+    if (error) { toast('Upload failed: '+error.message,'error'); continue; }
+    const {data:{publicUrl}} = sb.storage.from('media').getPublicUrl(path);
+    await sb.from('media').insert({user_id:currentUser.id,file_url:publicUrl,file_name:file.name,file_type:file.type.startsWith('video')?'video':'image'});
+    toast(`Uploaded: ${file.name}`);
+  }
+  loadMedia();
+}
+
+function insertMedia(url) {
+  showPage('compose');
+  toast('Image ready to attach in compose');
+}
+
+async function deleteMedia(id) {
+  await sb.from('media').delete().eq('id',id);
+  toast('Deleted'); loadMedia();
+}
+
+// ── SETTINGS ──
+async function saveProfile() {
+  const name = document.getElementById('settings-name').value.trim();
+  await sb.from('profiles').update({full_name:name}).eq('id',currentUser.id);
+  toast('Profile saved!');
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('new-password').value;
+  const p2 = document.getElementById('confirm-password').value;
+  if (p1!==p2) { toast('Passwords do not match','error'); return; }
+  if (p1.length<6) { toast('Password must be at least 6 characters','error'); return; }
+  const {error} = await sb.auth.updateUser({password:p1});
+  if (error) toast(error.message,'error');
+  else toast('Password updated!');
+}
+
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const path = `avatars/${currentUser.id}`;
+  await sb.storage.from('media').upload(path,file,{upsert:true});
+  const {data:{publicUrl}} = sb.storage.from('media').getPublicUrl(path);
+  await sb.from('profiles').update({avatar_url:publicUrl}).eq('id',currentUser.id);
+  const el = document.getElementById('settings-avatar');
+  el.innerHTML = `<img src="${publicUrl}">`;
+  toast('Avatar updated!');
+}
+
+function confirmDeleteAccount() {
+  openModal('Delete Account','Are you sure you want to delete your account? This cannot be undone.',async()=>{
+    await sb.auth.admin?.deleteUser(currentUser.id);
+    await logout();
+    toast('Account deleted');
+  });
+}
+
+// ── MODAL ──
+let modalCallback = null;
+function openModal(title, body, cb) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  document.getElementById('modal').classList.add('open');
+  modalCallback = cb;
+  document.getElementById('modal-confirm').onclick = async()=>{closeModal();if(modalCallback)await modalCallback();};
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+// ── FB SDK ──
+if (FB_APP_ID !== 'FB_APP_ID_PLACEHOLDER') {
+  window.fbAsyncInit = function() {
+    FB.init({appId:FB_APP_ID,cookie:true,xfbml:true,version:'v19.0'});
+  };
+  (function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="https://connect.facebook.net/en_US/sdk.js";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));
+}
+</script>
+</body>
+</html>
