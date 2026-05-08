@@ -235,6 +235,85 @@ input,textarea,select{font-family:inherit}
 .btn-disconnect{background:transparent;border:1px solid var(--border);color:var(--dim);padding:5px 10px;border-radius:4px;font-size:0.75rem;transition:all 0.15s}
 .btn-disconnect:hover{border-color:var(--red);color:var(--red)}
 
+/* ── PLAN BADGES + UPGRADE WALL ── */
+.nav-plan-badge{font-size:0.58rem;font-weight:700;padding:2px 5px;border-radius:4px;background:#B01020;color:#fff;letter-spacing:0.3px;margin-left:auto;flex-shrink:0}
+.upgrade-wall{background:var(--surface);border:1px solid rgba(176,16,32,0.3);border-radius:14px;padding:48px 32px;text-align:center;margin:24px}
+.upgrade-wall .uw-icon{font-size:48px;margin-bottom:16px}
+.upgrade-wall h3{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+.upgrade-wall p{font-size:0.88rem;color:var(--dim);line-height:1.6;max-width:340px;margin:0 auto 24px}
+.upgrade-wall .uw-features{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px}
+.upgrade-wall .uw-feat{background:var(--surface2);border-radius:20px;padding:5px 13px;font-size:0.78rem;color:var(--dim)}
+.btn-upgrade{background:linear-gradient(135deg,#B01020,#e02030);color:#fff;border:none;border-radius:10px;padding:13px 28px;font-size:0.92rem;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
+.btn-upgrade:hover{opacity:0.88}
+
+/* ── BULK SCHEDULE ── */
+.bulk-drop{border:2px dashed var(--border);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:20px}
+.bulk-drop:hover,.bulk-drop.dragover{border-color:#B01020;background:rgba(176,16,32,0.04)}
+.bulk-drop .bd-icon{font-size:36px;margin-bottom:12px}
+.bulk-drop h3{font-size:1rem;font-weight:600;margin-bottom:6px}
+.bulk-drop p{font-size:0.82rem;color:var(--dim)}
+.bulk-table{width:100%;border-collapse:collapse;font-size:0.83rem}
+.bulk-table th{text-align:left;padding:10px 12px;color:var(--dim);border-bottom:1px solid var(--border);font-weight:600;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px}
+.bulk-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.bulk-table tr:hover td{background:var(--surface2)}
+.bulk-status{font-size:0.72rem;font-weight:600;padding:3px 8px;border-radius:20px}
+.bulk-status.pending{background:rgba(245,158,11,0.15);color:#f59e0b}
+.bulk-status.ready{background:rgba(0,192,64,0.15);color:#00C040}
+.bulk-status.error{background:rgba(176,16,32,0.15);color:#B01020}
+.bulk-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+/* ── AI TOOLS PAGE ── */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:4px}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;transition:border-color 0.2s}
+.tool-card:hover{border-color:rgba(176,16,32,0.3)}
+.tool-card .tc-icon{font-size:28px;margin-bottom:12px}
+.tool-card h3{font-size:0.95rem;font-weight:700;margin-bottom:6px}
+.tool-card p{font-size:0.82rem;color:var(--dim);line-height:1.5;margin-bottom:16px}
+.tool-card .tc-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:0.85rem;margin-bottom:10px;outline:none}
+.tool-card .tc-input:focus{border-color:rgba(176,16,32,0.5)}
+.tool-card .tc-result{background:var(--surface2);border-radius:8px;padding:12px;font-size:0.83rem;line-height:1.6;min-height:60px;color:var(--dim);margin-top:10px;display:none;white-space:pre-wrap}
+.tool-card .tc-result.show{display:block}
+.tool-card .tc-btn{width:100%;padding:10px;background:linear-gradient(135deg,#B01020,#e02030);color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
+.tool-card .tc-btn:hover{opacity:0.88}
+.best-time-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.bt-day{text-align:center}
+.bt-day .bt-label{font-size:0.65rem;color:var(--dim);margin-bottom:4px}
+.bt-slot{padding:4px 2px;border-radius:4px;font-size:0.65rem;text-align:center;font-weight:600}
+.bt-slot.hot{background:rgba(176,16,32,0.25);color:#B01020}
+.bt-slot.warm{background:rgba(245,158,11,0.2);color:#f59e0b}
+.bt-slot.cool{background:var(--surface2);color:var(--dim)}
+
+/* ── WORKSPACES ── */
+.ws-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.ws-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:all 0.2s;position:relative}
+.ws-card:hover{border-color:#B01020;transform:translateY(-2px)}
+.ws-card.active-ws{border-color:#B01020;box-shadow:0 0 20px rgba(176,16,32,0.15)}
+.ws-avatar{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;font-weight:700;font-size:1.2rem}
+.ws-name{font-size:1rem;font-weight:700;margin-bottom:4px}
+.ws-meta{font-size:0.78rem;color:var(--dim)}
+.ws-badge{position:absolute;top:14px;right:14px;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(0,192,64,0.15);color:#00C040}
+.ws-add-card{background:transparent;border:2px dashed var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:border-color 0.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:130px}
+.ws-add-card:hover{border-color:#B01020}
+.ws-add-card .ws-add-icon{font-size:28px;color:var(--dim)}
+.ws-add-card p{font-size:0.83rem;color:var(--dim)}
+
+/* ── ADMIN DASHBOARD ── */
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.admin-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.admin-stat .as-label{font-size:0.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+.admin-stat .as-value{font-size:1.8rem;font-weight:800;line-height:1}
+.admin-stat .as-sub{font-size:0.75rem;color:var(--dim);margin-top:4px}
+.admin-stat.highlight{border-color:rgba(176,16,32,0.3)}
+.admin-stat.highlight .as-value{color:#B01020}
+.admin-table{width:100%;border-collapse:collapse;font-size:0.83rem}
+.admin-table th{text-align:left;padding:10px 14px;color:var(--dim);border-bottom:1px solid var(--border);font-weight:600;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px}
+.admin-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.admin-table tr:hover td{background:var(--surface2)}
+.plan-pill{font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:20px}
+.plan-pill.free{background:var(--surface2);color:var(--dim)}
+.plan-pill.pro{background:rgba(66,133,244,0.15);color:#4285F4}
+.plan-pill.agency{background:rgba(176,16,32,0.15);color:#B01020}
+
 /* ── PRICING PAGE ── */
 .pricing-hero{text-align:center;padding:48px 24px 36px;max-width:720px;margin:0 auto}
 .pricing-hero h1{font-size:2rem;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,#fff 40%,#B01020);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -531,6 +610,20 @@ input,textarea,select{font-family:inherit}
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span class="nav-label">Plans & Pricing</span>
         </div>
+        <div class="nav-item" onclick="showPage('bulk')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span class="nav-label">Bulk Schedule</span>
+          <span class="nav-plan-badge">PRO</span>
+        </div>
+        <div class="nav-item" onclick="showPage('tools')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          <span class="nav-label">AI Tools</span>
+        </div>
+        <div class="nav-item" onclick="showPage('workspaces')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          <span class="nav-label">Workspaces</span>
+          <span class="nav-plan-badge">AGENCY</span>
+        </div>
         <div class="sidebar-section">Library</div>
         <div class="nav-item" onclick="showPage('media')">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -540,6 +633,11 @@ input,textarea,select{font-family:inherit}
         <div class="nav-item" onclick="showPage('connect')">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           <span class="nav-label">Connect</span>
+        </div>
+        <div class="nav-item" onclick="showPage('admin')" id="admin-nav-item" style="display:none">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="nav-label">Admin</span>
+          <span class="nav-plan-badge" style="background:#f59e0b">OWNER</span>
         </div>
         <div class="nav-item" onclick="showPage('settings')">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -853,6 +951,276 @@ input,textarea,select{font-family:inherit}
         <div>
           <div style="font-size:1rem;font-weight:600;margin-bottom:16px">Connected Pages</div>
           <div id="connected-pages-list"><div class="empty"><div class="empty-icon">🔗</div><div class="empty-text">No pages connected yet. Connect Facebook above to get started.</div></div></div>
+        </div>
+      </div>
+
+      <!-- BULK SCHEDULE -->
+      <div class="page" id="page-bulk">
+        <div class="page-header">
+          <div class="page-title">Bulk Schedule</div>
+          <div class="page-sub">Upload a CSV to schedule dozens of posts at once</div>
+        </div>
+        <div id="bulk-upgrade-wall" style="display:none">
+          <div class="upgrade-wall">
+            <div class="uw-icon">&#128196;</div>
+            <h3>Bulk Scheduling is a Pro Feature</h3>
+            <p>Upload a CSV and schedule weeks of content in seconds. Upgrade to Pro to unlock it.</p>
+            <div class="uw-features">
+              <span class="uw-feat">&#128196; CSV upload</span>
+              <span class="uw-feat">&#8734; Unlimited posts</span>
+              <span class="uw-feat">&#128336; Auto-scheduling</span>
+              <span class="uw-feat">&#127760; All platforms</span>
+            </div>
+            <button class="btn-upgrade" onclick="showPage('pricing')">Upgrade to Pro — $18/mo</button>
+          </div>
+        </div>
+        <div id="bulk-content">
+          <!-- CSV Template Download -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap">
+            <div>
+              <div style="font-weight:600;margin-bottom:4px">&#128196; CSV Template</div>
+              <div style="font-size:0.82rem;color:var(--dim)">Download the template, fill in your posts, then upload below</div>
+            </div>
+            <button onclick="downloadBulkTemplate()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 16px;color:var(--text);font-family:inherit;font-size:0.83rem;cursor:pointer;white-space:nowrap">&#11015; Download Template</button>
+          </div>
+          <!-- Drop Zone -->
+          <div class="bulk-drop" id="bulk-drop" onclick="document.getElementById('bulk-file').click()" ondragover="bulkDragOver(event)" ondragleave="bulkDragLeave(event)" ondrop="bulkDrop(event)">
+            <div class="bd-icon">&#128196;</div>
+            <h3>Drop your CSV here</h3>
+            <p>or click to browse — up to 500 posts per upload</p>
+            <input type="file" id="bulk-file" accept=".csv" style="display:none" onchange="parseBulkCSV(this.files[0])">
+          </div>
+          <!-- Preview Table -->
+          <div id="bulk-preview" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-weight:600" id="bulk-count">0 posts ready</div>
+              <div class="bulk-actions">
+                <button onclick="scheduleBulkPosts()" class="btn-upgrade" style="padding:9px 20px;font-size:0.85rem">&#128640; Schedule All</button>
+                <button onclick="clearBulk()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:inherit;font-size:0.83rem;cursor:pointer">Clear</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="bulk-table">
+                <thead><tr><th>#</th><th>Text</th><th>Date</th><th>Time</th><th>Platforms</th><th>Status</th></tr></thead>
+                <tbody id="bulk-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI TOOLS -->
+      <div class="page" id="page-tools">
+        <div class="page-header">
+          <div class="page-title">AI Tools</div>
+          <div class="page-sub">Standalone AI utilities to power your content strategy</div>
+        </div>
+        <div class="tools-grid">
+
+          <!-- Hashtag Generator -->
+          <div class="tool-card">
+            <div class="tc-icon">&#35;</div>
+            <h3>Hashtag Generator</h3>
+            <p>Get the best hashtags for your post based on topic, platform, and audience size.</p>
+            <input class="tc-input" id="hashtag-topic" placeholder="e.g. fitness motivation, small business tips...">
+            <select class="tc-input" id="hashtag-platform" style="margin-bottom:10px">
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="twitter">X / Twitter</option>
+              <option value="linkedin">LinkedIn</option>
+            </select>
+            <button class="tc-btn" onclick="generateHashtags()">Generate Hashtags</button>
+            <div class="tc-result" id="hashtag-result"></div>
+          </div>
+
+          <!-- Best Time to Post -->
+          <div class="tool-card">
+            <div class="tc-icon">&#128336;</div>
+            <h3>Best Time to Post</h3>
+            <p>AI-recommended posting schedule based on your industry and target audience timezone.</p>
+            <select class="tc-input" id="btp-industry">
+              <option value="fashion">Fashion &amp; Beauty</option>
+              <option value="fitness">Fitness &amp; Health</option>
+              <option value="food">Food &amp; Restaurants</option>
+              <option value="business">Business &amp; Finance</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="tech">Tech &amp; Software</option>
+              <option value="ecommerce">E-Commerce &amp; Retail</option>
+              <option value="creative">Art &amp; Creative</option>
+            </select>
+            <select class="tc-input" id="btp-platform">
+              <option value="instagram">Instagram</option>
+              <option value="facebook">Facebook</option>
+              <option value="tiktok">TikTok</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="twitter">X / Twitter</option>
+            </select>
+            <button class="tc-btn" onclick="generateBestTime()">Show Best Times</button>
+            <div class="tc-result" id="btp-result"></div>
+          </div>
+
+          <!-- Bio Writer -->
+          <div class="tool-card">
+            <div class="tc-icon">&#128100;</div>
+            <h3>Bio Writer</h3>
+            <p>Write a punchy, optimised social media bio for any platform in seconds.</p>
+            <input class="tc-input" id="bio-name" placeholder="Your name or brand name">
+            <input class="tc-input" id="bio-what" placeholder="What you do (e.g. fitness coach, bakery)">
+            <select class="tc-input" id="bio-platform">
+              <option value="instagram">Instagram (150 chars)</option>
+              <option value="twitter">X / Twitter (160 chars)</option>
+              <option value="linkedin">LinkedIn (220 chars)</option>
+              <option value="tiktok">TikTok (80 chars)</option>
+            </select>
+            <button class="tc-btn" onclick="generateBio()">Write My Bio</button>
+            <div class="tc-result" id="bio-result"></div>
+          </div>
+
+          <!-- Content Ideas -->
+          <div class="tool-card">
+            <div class="tc-icon">&#128161;</div>
+            <h3>Content Ideas</h3>
+            <p>Get 10 content ideas tailored to your niche and audience — never run out of things to post.</p>
+            <input class="tc-input" id="ideas-niche" placeholder="e.g. natural hair care, Caribbean food, tech startup">
+            <select class="tc-input" id="ideas-platform">
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="facebook">Facebook</option>
+              <option value="linkedin">LinkedIn</option>
+            </select>
+            <button class="tc-btn" onclick="generateContentIdeas()">Generate 10 Ideas</button>
+            <div class="tc-result" id="ideas-result"></div>
+          </div>
+
+          <!-- Caption Rewriter -->
+          <div class="tool-card">
+            <div class="tc-icon">&#9997;</div>
+            <h3>Caption Rewriter</h3>
+            <p>Paste any caption and rewrite it in a different tone — professional, casual, funny, viral.</p>
+            <textarea class="tc-input" id="rewrite-input" placeholder="Paste your existing caption here..." rows="3" style="resize:vertical"></textarea>
+            <select class="tc-input" id="rewrite-tone">
+              <option value="viral">Viral / Trending</option>
+              <option value="professional">Professional</option>
+              <option value="funny">Funny</option>
+              <option value="inspirational">Inspirational</option>
+              <option value="casual">Casual &amp; Friendly</option>
+            </select>
+            <button class="tc-btn" onclick="rewriteCaption()">Rewrite Caption</button>
+            <div class="tc-result" id="rewrite-result"></div>
+          </div>
+
+          <!-- Engagement Hook Generator -->
+          <div class="tool-card">
+            <div class="tc-icon">&#128247;</div>
+            <h3>Hook Generator</h3>
+            <p>Write scroll-stopping opening lines that make people stop and read your post.</p>
+            <input class="tc-input" id="hook-topic" placeholder="What is your post about?">
+            <select class="tc-input" id="hook-type">
+              <option value="question">Question hook</option>
+              <option value="stat">Statistic hook</option>
+              <option value="story">Story hook</option>
+              <option value="controversial">Controversial take</option>
+              <option value="list">List hook</option>
+            </select>
+            <button class="tc-btn" onclick="generateHook()">Generate 5 Hooks</button>
+            <div class="tc-result" id="hook-result"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- WORKSPACES -->
+      <div class="page" id="page-workspaces">
+        <div class="page-header">
+          <div class="page-title">Workspaces</div>
+          <div class="page-sub">Manage multiple brands or clients from one account</div>
+        </div>
+        <div id="ws-upgrade-wall" style="display:none">
+          <div class="upgrade-wall">
+            <div class="uw-icon">&#128188;</div>
+            <h3>Workspaces is an Agency Feature</h3>
+            <p>Manage multiple brands and clients under one login. Each workspace has its own social accounts, posts, and team.</p>
+            <div class="uw-features">
+              <span class="uw-feat">&#127970; Multiple brands</span>
+              <span class="uw-feat">&#128101; Team permissions</span>
+              <span class="uw-feat">&#128203; Client reporting</span>
+              <span class="uw-feat">&#127760; Unlimited accounts</span>
+            </div>
+            <button class="btn-upgrade" onclick="showPage('pricing')">Upgrade to Agency — $45/mo</button>
+          </div>
+        </div>
+        <div id="ws-content">
+          <div class="ws-grid" id="ws-grid">
+            <!-- populated by JS -->
+          </div>
+        </div>
+        <!-- New workspace modal -->
+        <div id="ws-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;align-items:center;justify-content:center">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:400px;margin:20px">
+            <h3 style="margin-bottom:20px;font-size:1.1rem">New Workspace</h3>
+            <div class="field"><label>Workspace Name</label><input class="field-input" id="ws-name-input" placeholder="e.g. Nike Brand, Client ABC"></div>
+            <div class="field"><label>Emoji / Icon</label><input class="field-input" id="ws-emoji-input" placeholder="e.g. 👟 🍕 💼" style="font-size:1.4rem"></div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+              <button onclick="createWorkspace()" class="btn-upgrade" style="flex:1;padding:12px">Create Workspace</button>
+              <button onclick="document.getElementById('ws-modal').style.display='none'" style="flex:1;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;cursor:pointer">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN DASHBOARD -->
+      <div class="page" id="page-admin">
+        <div class="page-header">
+          <div class="page-title">Admin Dashboard</div>
+          <div class="page-sub">Your private overview — visible only to you</div>
+        </div>
+        <!-- Stats row -->
+        <div class="admin-stats">
+          <div class="admin-stat highlight">
+            <div class="as-label">MRR</div>
+            <div class="as-value" id="admin-mrr">$0</div>
+            <div class="as-sub">monthly recurring</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-label">Total Users</div>
+            <div class="as-value" id="admin-total">0</div>
+            <div class="as-sub">all time</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-label">Free</div>
+            <div class="as-value" id="admin-free">0</div>
+            <div class="as-sub">free plan</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-label">Pro</div>
+            <div class="as-value" id="admin-pro">0</div>
+            <div class="as-sub">$18/mo</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-label">Agency</div>
+            <div class="as-value" id="admin-agency">0</div>
+            <div class="as-sub">$45/mo</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-label">Add-ons Active</div>
+            <div class="as-value" id="admin-addons">0</div>
+            <div class="as-sub">TikTok + X</div>
+          </div>
+        </div>
+        <!-- User table -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div style="font-weight:600">All Users</div>
+            <input id="admin-search" placeholder="Search by email..." style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:inherit;font-size:0.83rem;outline:none;width:220px" oninput="filterAdminUsers(this.value)">
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-table">
+              <thead><tr><th>User</th><th>Plan</th><th>Add-ons</th><th>Joined</th><th>Last Active</th><th>Actions</th></tr></thead>
+              <tbody id="admin-user-table">
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--dim)">Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1297,6 +1665,7 @@ async function onLogin(user) {
   const hour = new Date().getHours();
   const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const {data:profile} = await sb.from('profiles').select('*').eq('id',user.id).single();
+  setUserPlan(profile?.plan);
   const name = profile?.full_name || user.email.split('@')[0];
   document.getElementById('home-greeting').textContent = `${greet}, ${name}! 👋`;
   document.getElementById('settings-name').value = profile?.full_name || '';
@@ -1333,11 +1702,25 @@ function showPage(name) {
   if (name === 'feed') {
     setTimeout(function() {
       if (!_feedLoaded['facebook']) loadFacebookFeed();
-      // Update tab connection dots based on connected accounts
       if (connectedAccounts && connectedAccounts.length > 0) {
         document.getElementById('feed-tab-facebook').classList.add('connected');
       }
     }, 80);
+  }
+  if (name === 'bulk') {
+    showUpgradeWall('bulk', !isPro());
+  }
+  if (name === 'workspaces') {
+    if (!isAgency()) {
+      showUpgradeWall('workspaces', true);
+    } else {
+      showUpgradeWall('workspaces', false);
+      loadWorkspaces();
+    }
+  }
+  if (name === 'admin') {
+    if (currentUser?.email !== ADMIN_EMAIL) { showPage('home'); return; }
+    loadAdminDashboard();
   }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1982,6 +2365,344 @@ function loadMoreFeed(platform) {
   if (platform === 'facebook' && _feedCursors['facebook']) {
     loadFacebookFeed(_feedCursors['facebook']);
   }
+}
+
+// ── FEATURE GATING ──────────────────────────────────────────
+let _userPlan = 'free'; // 'free' | 'pro' | 'agency'
+const ADMIN_EMAIL = 'priscadezigns9@gmail.com';
+
+function setUserPlan(plan) {
+  _userPlan = plan || 'free';
+  // Show admin nav if owner
+  if (currentUser?.email === ADMIN_EMAIL) {
+    const adminNav = document.getElementById('admin-nav-item');
+    if (adminNav) adminNav.style.display = 'flex';
+  }
+}
+
+function isPro() { return _userPlan === 'pro' || _userPlan === 'agency'; }
+function isAgency() { return _userPlan === 'agency'; }
+
+function checkGate(feature) {
+  // feature: 'pro' | 'agency'
+  if (feature === 'pro' && !isPro()) return false;
+  if (feature === 'agency' && !isAgency()) return false;
+  return true;
+}
+
+function showUpgradeWall(pageId, feature) {
+  const wallId = pageId === 'bulk' ? 'bulk-upgrade-wall' : 'ws-upgrade-wall';
+  const contentId = pageId === 'bulk' ? 'bulk-content' : 'ws-content';
+  const wall = document.getElementById(wallId);
+  const content = document.getElementById(contentId);
+  if (wall) wall.style.display = feature ? 'block' : 'none';
+  if (content) content.style.display = feature ? 'none' : 'block';
+}
+
+// ── BULK SCHEDULE ─────────────────────────────────────────────
+let _bulkPosts = [];
+
+function downloadBulkTemplate() {
+  const csv = 'text,date,time,platforms,image_url\n' +
+    '"Check out our latest collection! #fashion #style","2025-02-01","09:00","facebook,instagram",""\n' +
+    '"Big sale this weekend only! 50% off everything","2025-02-02","12:00","facebook","https://example.com/image.jpg"\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trogon_bulk_template.csv';
+  a.click();
+  toast('Template downloaded ✓');
+}
+
+function bulkDragOver(e) {
+  e.preventDefault();
+  document.getElementById('bulk-drop').classList.add('dragover');
+}
+function bulkDragLeave(e) {
+  document.getElementById('bulk-drop').classList.remove('dragover');
+}
+function bulkDrop(e) {
+  e.preventDefault();
+  document.getElementById('bulk-drop').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.csv')) parseBulkCSV(file);
+  else toast('Please upload a CSV file', 'error');
+}
+
+function parseBulkCSV(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    const headers = lines[0].toLowerCase().split(',');
+    _bulkPosts = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].match(/(".*?"|[^,]+)/g) || [];
+      const clean = vals.map(v => v.replace(/^"|"$/g, '').trim());
+      const post = {
+        text: clean[0] || '',
+        date: clean[1] || '',
+        time: clean[2] || '09:00',
+        platforms: clean[3] || 'facebook',
+        image_url: clean[4] || '',
+        status: clean[0] ? 'ready' : 'error'
+      };
+      if (post.text) _bulkPosts.push(post);
+    }
+    renderBulkTable();
+  };
+  reader.readAsText(file);
+}
+
+function renderBulkTable() {
+  const tbody = document.getElementById('bulk-table-body');
+  const preview = document.getElementById('bulk-preview');
+  const count = document.getElementById('bulk-count');
+  if (!tbody) return;
+  if (_bulkPosts.length === 0) { preview.style.display = 'none'; return; }
+  preview.style.display = 'block';
+  count.textContent = _bulkPosts.length + ' posts ready to schedule';
+  tbody.innerHTML = _bulkPosts.map((p, i) => `
+    <tr>
+      <td style="color:var(--dim)">${i+1}</td>
+      <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.text.slice(0,60)}${p.text.length>60?'...':''}</td>
+      <td>${p.date}</td>
+      <td>${p.time}</td>
+      <td style="font-size:0.75rem;color:var(--dim)">${p.platforms}</td>
+      <td><span class="bulk-status ${p.status}">${p.status}</span></td>
+    </tr>`).join('');
+}
+
+async function scheduleBulkPosts() {
+  if (!currentUser) { toast('Please sign in first', 'error'); return; }
+  let success = 0;
+  for (const post of _bulkPosts.filter(p => p.status === 'ready')) {
+    const scheduledAt = new Date(post.date + 'T' + post.time);
+    const { error } = await sb.from('posts').insert({
+      user_id: currentUser.id,
+      content: post.text,
+      platforms: post.platforms.split(',').map(p => p.trim()),
+      scheduled_at: scheduledAt.toISOString(),
+      status: 'scheduled',
+      image_url: post.image_url || null
+    });
+    if (!error) success++;
+  }
+  toast(`✓ ${success} posts scheduled!`);
+  clearBulk();
+}
+
+function clearBulk() {
+  _bulkPosts = [];
+  document.getElementById('bulk-preview').style.display = 'none';
+  document.getElementById('bulk-file').value = '';
+}
+
+// ── AI TOOLS ──────────────────────────────────────────────────
+async function callGroqTool(systemPrompt, userPrompt, resultId) {
+  const resultEl = document.getElementById(resultId);
+  if (!resultEl) return;
+  resultEl.textContent = 'Generating...';
+  resultEl.classList.add('show');
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY_LIVE },
+      body: JSON.stringify({
+        model: 'llama3-8b-8192',
+        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+        max_tokens: 400
+      })
+    });
+    const data = await res.json();
+    resultEl.textContent = data.choices?.[0]?.message?.content || 'Could not generate — check your AI key in Settings.';
+  } catch(e) {
+    resultEl.textContent = 'Error: ' + e.message;
+  }
+}
+
+function generateHashtags() {
+  const topic = document.getElementById('hashtag-topic').value.trim();
+  const platform = document.getElementById('hashtag-platform').value;
+  if (!topic) { toast('Enter a topic first', 'error'); return; }
+  callGroqTool(
+    `You are a social media expert. Generate 20-25 highly relevant hashtags for ${platform}. Mix popular (1M+ posts) and niche (under 100K posts) hashtags. Format: #hashtag1 #hashtag2 etc. No explanations.`,
+    `Topic: ${topic}`,
+    'hashtag-result'
+  );
+}
+
+function generateBestTime() {
+  const industry = document.getElementById('btp-industry').value;
+  const platform = document.getElementById('btp-platform').value;
+  const resultEl = document.getElementById('btp-result');
+  if (!resultEl) return;
+  // Research-based best times data
+  const data = {
+    instagram: { fitness:'6am,12pm,7pm', fashion:'8am,1pm,9pm', food:'11am,1pm,7pm', business:'7am,12pm,5pm', entertainment:'9am,8pm,10pm', tech:'8am,12pm,6pm', ecommerce:'10am,2pm,8pm', creative:'9am,1pm,8pm' },
+    facebook:  { fitness:'7am,1pm,7pm', fashion:'9am,12pm,8pm', food:'12pm,3pm,6pm', business:'9am,1pm,4pm', entertainment:'10am,7pm,9pm', tech:'9am,1pm,5pm', ecommerce:'11am,3pm,8pm', creative:'10am,2pm,7pm' },
+    tiktok:    { fitness:'6am,10am,10pm', fashion:'7am,12pm,10pm', food:'11am,5pm,8pm', business:'8am,12pm,7pm', entertainment:'7pm,8pm,10pm', tech:'7am,11am,8pm', ecommerce:'10am,7pm,9pm', creative:'8pm,9pm,10pm' },
+    linkedin:  { fitness:'7am,12pm,5pm', fashion:'8am,12pm,4pm', food:'11am,12pm,3pm', business:'8am,12pm,5pm', entertainment:'9am,6pm,8pm', tech:'8am,12pm,6pm', ecommerce:'10am,12pm,4pm', creative:'9am,1pm,5pm' },
+    twitter:   { fitness:'6am,12pm,8pm', fashion:'9am,12pm,9pm', food:'12pm,3pm,7pm', business:'8am,1pm,5pm', entertainment:'8pm,9pm,10pm', tech:'9am,12pm,5pm', ecommerce:'11am,8pm,9pm', creative:'9am,8pm,10pm' },
+  };
+  const times = data[platform]?.[industry]?.split(',') || ['9am','12pm','6pm'];
+  resultEl.innerHTML = `<strong>Best times to post on ${platform} for ${industry}:</strong>\n\n&#9200; ${times[0]} — Morning peak\n&#9200; ${times[1]} — Midday peak\n&#9200; ${times[2]} — Evening peak\n\n<em>Tip: Post consistently at the same times to train the algorithm to expect your content.</em>`;
+  resultEl.classList.add('show');
+}
+
+function generateBio() {
+  const name = document.getElementById('bio-name').value.trim();
+  const what = document.getElementById('bio-what').value.trim();
+  const platform = document.getElementById('bio-platform').value;
+  if (!name || !what) { toast('Fill in name and what you do', 'error'); return; }
+  const limits = { instagram: 150, twitter: 160, linkedin: 220, tiktok: 80 };
+  callGroqTool(
+    `You are a social media copywriter. Write a punchy, optimised bio for ${platform}. Maximum ${limits[platform]} characters. Include relevant keywords. No quotes, just the bio text.`,
+    `Name: ${name}\nWhat they do: ${what}\nPlatform: ${platform}`,
+    'bio-result'
+  );
+}
+
+function generateContentIdeas() {
+  const niche = document.getElementById('ideas-niche').value.trim();
+  const platform = document.getElementById('ideas-platform').value;
+  if (!niche) { toast('Enter your niche first', 'error'); return; }
+  callGroqTool(
+    `You are a content strategist. Generate exactly 10 content ideas for ${platform}. Number them 1-10. Each idea should be specific, actionable, and tailored to the niche. Keep each idea to one line.`,
+    `Niche: ${niche}\nPlatform: ${platform}`,
+    'ideas-result'
+  );
+}
+
+function rewriteCaption() {
+  const text = document.getElementById('rewrite-input').value.trim();
+  const tone = document.getElementById('rewrite-tone').value;
+  if (!text) { toast('Paste a caption to rewrite', 'error'); return; }
+  callGroqTool(
+    `You are a social media copywriter. Rewrite the given caption in a ${tone} tone. Keep the core message but make it more ${tone}. Return only the rewritten caption.`,
+    text,
+    'rewrite-result'
+  );
+}
+
+function generateHook() {
+  const topic = document.getElementById('hook-topic').value.trim();
+  const type = document.getElementById('hook-type').value;
+  if (!topic) { toast('Enter your post topic', 'error'); return; }
+  callGroqTool(
+    `You are a viral content writer. Write exactly 5 scroll-stopping ${type} hooks for a social media post. Number them 1-5. Each hook should be one sentence that makes people stop scrolling. No explanations.`,
+    `Post topic: ${topic}`,
+    'hook-result'
+  );
+}
+
+// ── WORKSPACES ────────────────────────────────────────────────
+let _workspaces = [];
+let _activeWorkspace = null;
+
+async function loadWorkspaces() {
+  if (!currentUser) return;
+  const { data } = await sb.from('workspaces').select('*').eq('owner_id', currentUser.id).order('created_at');
+  _workspaces = data || [];
+  renderWorkspaces();
+}
+
+function renderWorkspaces() {
+  const grid = document.getElementById('ws-grid');
+  if (!grid) return;
+  const wsCards = _workspaces.map(ws => `
+    <div class="ws-card ${_activeWorkspace?.id === ws.id ? 'active-ws' : ''}" onclick="switchWorkspace('${ws.id}')">
+      ${_activeWorkspace?.id === ws.id ? '<div class="ws-badge">Active</div>' : ''}
+      <div class="ws-avatar" style="background:${ws.color || 'var(--surface2)'}">${ws.emoji || ws.name.charAt(0)}</div>
+      <div class="ws-name">${ws.name}</div>
+      <div class="ws-meta">Created ${new Date(ws.created_at).toLocaleDateString()}</div>
+    </div>`).join('');
+  grid.innerHTML = wsCards + `
+    <div class="ws-add-card" onclick="document.getElementById('ws-modal').style.display='flex'">
+      <div class="ws-add-icon">+</div>
+      <p>New Workspace</p>
+    </div>`;
+}
+
+async function createWorkspace() {
+  const name = document.getElementById('ws-name-input').value.trim();
+  const emoji = document.getElementById('ws-emoji-input').value.trim();
+  if (!name) { toast('Enter a workspace name', 'error'); return; }
+  const { data, error } = await sb.from('workspaces').insert({ owner_id: currentUser.id, name, emoji: emoji || name.charAt(0).toUpperCase() }).select().single();
+  if (error) { toast(error.message, 'error'); return; }
+  document.getElementById('ws-modal').style.display = 'none';
+  document.getElementById('ws-name-input').value = '';
+  document.getElementById('ws-emoji-input').value = '';
+  await loadWorkspaces();
+  toast('Workspace created ✓');
+}
+
+async function switchWorkspace(id) {
+  _activeWorkspace = _workspaces.find(w => w.id === id);
+  renderWorkspaces();
+  toast('Switched to ' + _activeWorkspace.name);
+}
+
+// ── ADMIN DASHBOARD ───────────────────────────────────────────
+let _allUsers = [];
+
+async function loadAdminDashboard() {
+  if (currentUser?.email !== ADMIN_EMAIL) return;
+  const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+  _allUsers = data || [];
+  renderAdminStats();
+  renderAdminTable(_allUsers);
+}
+
+function renderAdminStats() {
+  const free = _allUsers.filter(u => !u.plan || u.plan === 'free').length;
+  const pro = _allUsers.filter(u => u.plan === 'pro').length;
+  const agency = _allUsers.filter(u => u.plan === 'agency').length;
+  const addons = _allUsers.filter(u => u.addons?.length > 0).length;
+  const mrr = (pro * 18) + (agency * 45) + (addons * 10);
+  document.getElementById('admin-mrr').textContent = '$' + mrr;
+  document.getElementById('admin-total').textContent = _allUsers.length;
+  document.getElementById('admin-free').textContent = free;
+  document.getElementById('admin-pro').textContent = pro;
+  document.getElementById('admin-agency').textContent = agency;
+  document.getElementById('admin-addons').textContent = addons;
+}
+
+function renderAdminTable(users) {
+  const tbody = document.getElementById('admin-user-table');
+  if (!tbody) return;
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--dim)">No users yet</td></tr>'; return; }
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td>
+        <div style="font-weight:600;font-size:0.85rem">${u.full_name || '—'}</div>
+        <div style="font-size:0.75rem;color:var(--dim)">${u.email || u.id.slice(0,8)}</div>
+      </td>
+      <td><span class="plan-pill ${u.plan || 'free'}">${(u.plan || 'free').toUpperCase()}</span></td>
+      <td style="font-size:0.78rem;color:var(--dim)">${u.addons?.join(', ') || '—'}</td>
+      <td style="font-size:0.78rem;color:var(--dim)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+      <td style="font-size:0.78rem;color:var(--dim)">${u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : '—'}</td>
+      <td>
+        <select onchange="adminChangePlan('${u.id}', this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:inherit;font-size:0.75rem">
+          <option ${(!u.plan||u.plan==='free')?'selected':''} value="free">Free</option>
+          <option ${u.plan==='pro'?'selected':''} value="pro">Pro</option>
+          <option ${u.plan==='agency'?'selected':''} value="agency">Agency</option>
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+function filterAdminUsers(query) {
+  const filtered = query ? _allUsers.filter(u => (u.email||'').includes(query) || (u.full_name||'').toLowerCase().includes(query.toLowerCase())) : _allUsers;
+  renderAdminTable(filtered);
+}
+
+async function adminChangePlan(userId, plan) {
+  const { error } = await sb.from('profiles').update({ plan }).eq('id', userId);
+  if (error) { toast(error.message, 'error'); return; }
+  const u = _allUsers.find(u => u.id === userId);
+  if (u) u.plan = plan;
+  renderAdminStats();
+  toast('Plan updated ✓');
 }
 
 // ── PRICING ──────────────────────────────────────────────────
