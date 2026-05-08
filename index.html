@@ -482,6 +482,7 @@ input,textarea,select{font-family:inherit}
                   <option value="caption">📝 Caption</option>
                   <option value="image">🖼️ Image</option>
                   <option value="video">🎬 Video Script</option>
+                  <option value="videosearch">🎞️ Video Research</option>
                   <option value="research">🔍 Research &amp; Post</option>
                 </select>
                 <select class="tone-select" id="ai-tone">
@@ -733,6 +734,25 @@ input,textarea,select{font-family:inherit}
           <div class="settings-row"><div class="settings-label">Pages Connected</div><div class="settings-value" id="settings-pages-count">0</div></div>
         </div>
         <div class="settings-section">
+          <h3>Video API Keys <span style="font-size:0.72rem;font-weight:400;color:var(--dim);margin-left:8px">(Optional — unlocks Video Research)</span></h3>
+          <p style="font-size:0.82rem;color:var(--dim);margin-bottom:18px;line-height:1.6">Add your free API keys to enable video clip search from multiple sources. Leave blank to skip — the AI will generate a visual instead.</p>
+          <div class="field">
+            <label>Pexels API Key <a href="https://www.pexels.com/api/" target="_blank" style="font-size:0.72rem;color:var(--blue);margin-left:6px">Get free key ↗</a></label>
+            <input type="password" id="settings-pexels-key" placeholder="Paste your Pexels API key..." style="font-family:monospace">
+          </div>
+          <div class="field">
+            <label>Pixabay API Key <a href="https://pixabay.com/api/docs/" target="_blank" style="font-size:0.72rem;color:var(--blue);margin-left:6px">Get free key ↗</a></label>
+            <input type="password" id="settings-pixabay-key" placeholder="Paste your Pixabay API key..." style="font-family:monospace">
+          </div>
+          <div class="field">
+            <label>YouTube Data API Key <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" style="font-size:0.72rem;color:var(--blue);margin-left:6px">Get free key ↗</a></label>
+            <input type="password" id="settings-youtube-key" placeholder="Paste your YouTube Data v3 API key..." style="font-family:monospace">
+          </div>
+          <div id="video-keys-status" style="font-size:0.78rem;margin-bottom:12px;display:none"></div>
+          <button class="btn-green" style="width:auto;padding:10px 24px" onclick="saveVideoKeys()">Save Video Keys</button>
+        </div>
+
+        <div class="settings-section">
           <h3>Danger Zone</h3>
           <div style="display:flex;gap:12px;flex-wrap:wrap">
             <button class="btn-outline" onclick="logout()">Sign Out</button>
@@ -867,6 +887,9 @@ sb.auth.onAuthStateChange(async (event, session) => {
 
 // ── NAVIGATION ──
 function showPage(name) {
+  if (name === 'settings') {
+    setTimeout(loadVideoKeysIntoSettings, 50);
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
@@ -1109,6 +1132,11 @@ async function generateAI() {
       btn.textContent = '✨ Generate'; btn.disabled = false;
       return;
 
+    } else if (type === 'videosearch') {
+      await generateVideoResearch(prompt, tone);
+      btn.textContent = '✨ Generate'; btn.disabled = false;
+      return;
+
     } else {
       // Caption
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1299,6 +1327,285 @@ function useResearchBoth() {
   useResearchCaption();
   useResearchImage();
   toast('Caption + image added ✓');
+}
+
+// ── VIDEO KEYS ────────────────────────────────────────────────
+function saveVideoKeys() {
+  const pexels = document.getElementById('settings-pexels-key').value.trim();
+  const pixabay = document.getElementById('settings-pixabay-key').value.trim();
+  const youtube = document.getElementById('settings-youtube-key').value.trim();
+  if (pexels) localStorage.setItem('trogon_pexels_key', pexels);
+  else localStorage.removeItem('trogon_pexels_key');
+  if (pixabay) localStorage.setItem('trogon_pixabay_key', pixabay);
+  else localStorage.removeItem('trogon_pixabay_key');
+  if (youtube) localStorage.setItem('trogon_youtube_key', youtube);
+  else localStorage.removeItem('trogon_youtube_key');
+
+  const saved = [pexels && 'Pexels', pixabay && 'Pixabay', youtube && 'YouTube'].filter(Boolean);
+  const status = document.getElementById('video-keys-status');
+  if (saved.length > 0) {
+    status.style.display = 'block';
+    status.style.color = 'var(--green)';
+    status.textContent = '✓ Saved: ' + saved.join(', ') + ' — Video Research is now active.';
+  } else {
+    status.style.display = 'block';
+    status.style.color = 'var(--dim)';
+    status.textContent = 'No keys saved — Video Research will use AI-generated visuals only.';
+  }
+  toast('Video keys saved ✓');
+}
+
+function loadVideoKeysIntoSettings() {
+  const p = localStorage.getItem('trogon_pexels_key');
+  const px = localStorage.getItem('trogon_pixabay_key');
+  const yt = localStorage.getItem('trogon_youtube_key');
+  if (p) document.getElementById('settings-pexels-key').value = p;
+  if (px) document.getElementById('settings-pixabay-key').value = px;
+  if (yt) document.getElementById('settings-youtube-key').value = yt;
+  const active = [p && 'Pexels', px && 'Pixabay', yt && 'YouTube'].filter(Boolean);
+  if (active.length > 0) {
+    const status = document.getElementById('video-keys-status');
+    if (status) {
+      status.style.display = 'block';
+      status.style.color = 'var(--green)';
+      status.textContent = '✓ Active: ' + active.join(', ');
+    }
+  }
+}
+
+// ── VIDEO RESEARCH ─────────────────────────────────────────────
+let _lastVideoResults = [];
+let _lastVideoScript = '';
+
+async function generateVideoResearch(prompt, tone) {
+  // Reuse research panel for video too
+  const researchPanel = document.getElementById('ai-research-result');
+  const summaryEl = document.getElementById('ai-research-summary');
+  const sourcesEl = document.getElementById('ai-research-sources');
+  const imgWrap = document.getElementById('ai-research-img-wrap');
+  const imgEl = document.getElementById('ai-research-img');
+  const imgCredit = document.getElementById('ai-research-img-credit');
+  const useImgBtn = document.getElementById('use-research-img-btn');
+  const useBothBtn = document.getElementById('use-research-both-btn');
+
+  document.getElementById('ai-image-result').style.display = 'none';
+  researchPanel.style.display = 'block';
+  summaryEl.innerHTML = '<span style="color:var(--blue)">Searching for video clips...</span>';
+  sourcesEl.innerHTML = '';
+  imgWrap.style.display = 'none';
+  useImgBtn.style.display = 'none';
+  useBothBtn.style.display = 'none';
+  _lastResearchCaption = '';
+  _lastResearchImgUrl = '';
+  _lastVideoResults = [];
+  _lastVideoScript = '';
+
+  const pexelsKey = localStorage.getItem('trogon_pexels_key');
+  const pixabayKey = localStorage.getItem('trogon_pixabay_key');
+  const youtubeKey = localStorage.getItem('trogon_youtube_key');
+  const hasAnyKey = pexelsKey || pixabayKey || youtubeKey;
+
+  let clips = [];
+  let sources = [];
+
+  // ── PEXELS ──────────────────────────────────────────────────
+  if (pexelsKey) {
+    try {
+      const res = await fetch(
+        'https://api.pexels.com/videos/search?query=' + encodeURIComponent(prompt) + '&per_page=5&orientation=landscape',
+        { headers: { Authorization: pexelsKey } }
+      );
+      const data = await res.json();
+      const videos = data?.videos || [];
+      for (const v of videos.slice(0, 3)) {
+        const file = v.video_files?.find(f => f.quality === 'hd' || f.quality === 'sd');
+        if (file) {
+          clips.push({
+            source: 'Pexels',
+            title: v.url?.split('/').filter(Boolean).pop() || 'Pexels clip',
+            url: file.link,
+            thumb: v.image,
+            pageUrl: v.url,
+            duration: v.duration + 's',
+            author: v.user?.name || 'Pexels'
+          });
+          sources.push({ title: 'Pexels: ' + (v.user?.name || 'video'), url: v.url });
+        }
+      }
+    } catch(e) { console.warn('Pexels error:', e); }
+  }
+
+  // ── PIXABAY ──────────────────────────────────────────────────
+  if (pixabayKey) {
+    try {
+      const res = await fetch(
+        'https://pixabay.com/api/videos/?key=' + pixabayKey + '&q=' + encodeURIComponent(prompt) + '&per_page=5'
+      );
+      const data = await res.json();
+      const hits = data?.hits || [];
+      for (const v of hits.slice(0, 3)) {
+        const file = v.videos?.large || v.videos?.medium || v.videos?.small;
+        if (file) {
+          clips.push({
+            source: 'Pixabay',
+            title: v.tags || prompt,
+            url: file.url,
+            thumb: v.userImageURL || v.videos?.tiny?.thumbnail,
+            pageUrl: 'https://pixabay.com/videos/id-' + v.id + '/',
+            duration: v.duration + 's',
+            author: v.user || 'Pixabay'
+          });
+          sources.push({ title: 'Pixabay: ' + (v.user || 'video'), url: 'https://pixabay.com/videos/id-' + v.id + '/' });
+        }
+      }
+    } catch(e) { console.warn('Pixabay error:', e); }
+  }
+
+  // ── YOUTUBE (metadata only — no downloadable URL, shows search results) ──
+  if (youtubeKey) {
+    try {
+      const res = await fetch(
+        'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + encodeURIComponent(prompt) +
+        '&type=video&maxResults=4&videoDuration=short&key=' + youtubeKey
+      );
+      const data = await res.json();
+      const items = data?.items || [];
+      for (const item of items.slice(0, 3)) {
+        const vid = item.id?.videoId;
+        if (vid) {
+          clips.push({
+            source: 'YouTube',
+            title: item.snippet?.title || prompt,
+            url: null,
+            thumb: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url,
+            pageUrl: 'https://youtube.com/watch?v=' + vid,
+            duration: null,
+            author: item.snippet?.channelTitle || 'YouTube',
+            embedUrl: 'https://www.youtube.com/embed/' + vid,
+            youtubeId: vid
+          });
+          sources.push({ title: 'YouTube: ' + (item.snippet?.title || vid).slice(0, 40), url: 'https://youtube.com/watch?v=' + vid });
+        }
+      }
+    } catch(e) { console.warn('YouTube error:', e); }
+  }
+
+  _lastVideoResults = clips;
+
+  // Show sources
+  if (sources.length > 0) {
+    sourcesEl.innerHTML = sources.map(s =>
+      '<a href="' + s.url + '" target="_blank" style="font-size:0.7rem;background:rgba(59,130,246,0.12);color:var(--blue);padding:2px 8px;border-radius:12px;text-decoration:none;border:1px solid rgba(59,130,246,0.25)">' + s.title + '</a>'
+    ).join('');
+  }
+
+  // Build results display
+  if (clips.length > 0) {
+    const firstClip = clips[0];
+    // Show thumbnail of first result
+    if (firstClip.thumb) {
+      imgEl.src = firstClip.thumb;
+      imgWrap.style.display = 'block';
+      let creditText = firstClip.source + ' — ' + firstClip.author;
+      if (firstClip.pageUrl) {
+        imgCredit.innerHTML = 'Source: <a href="' + firstClip.pageUrl + '" target="_blank" style="color:var(--blue)">' + creditText + ' ↗</a>';
+      } else {
+        imgCredit.textContent = 'Source: ' + creditText;
+      }
+      _lastResearchImgUrl = firstClip.thumb;
+    }
+
+    // Build clip cards HTML
+    const clipCards = clips.map((c, i) =>
+      '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;display:flex;gap:10px;align-items:center">' +
+        (c.thumb ? '<img src="' + c.thumb + '" style="width:80px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0">' : '<div style="width:80px;height:50px;background:#1a1d2e;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px">&#127909;</div>') +
+        '<div style="flex:1;min-width:0">' +
+          '<div style="font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.title.slice(0, 60) + '</div>' +
+          '<div style="font-size:0.7rem;color:var(--dim);margin-top:2px">' + c.source + (c.duration ? ' · ' + c.duration : '') + ' · ' + c.author + '</div>' +
+          (c.youtubeId
+            ? '<a href="' + c.pageUrl + '" target="_blank" style="font-size:0.7rem;color:var(--blue);text-decoration:none">Watch on YouTube ↗</a>'
+            : (c.url ? '<button onclick="useVideoClip('' + c.url.replace(/'/g, "\'") + '','' + (c.thumb||'').replace(/'/g,"\'") + '')" style="font-size:0.7rem;background:var(--blue);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;margin-top:4px">Use Clip</button>' : '')) +
+        '</div>' +
+      '</div>'
+    ).join('');
+
+    summaryEl.innerHTML =
+      '<div style="font-size:0.75rem;font-weight:700;color:var(--blue);margin-bottom:8px">' + clips.length + ' clips found across ' + [...new Set(clips.map(c=>c.source))].join(', ') + '</div>' +
+      clipCards +
+      '<div id="video-script-output" style="margin-top:12px"></div>';
+  } else if (!hasAnyKey) {
+    summaryEl.innerHTML =
+      '<div style="color:var(--dim);font-size:0.83rem;line-height:1.6">' +
+      '&#128273; No video API keys added yet. Go to <strong>Settings &rarr; Video API Keys</strong> to add your free Pexels, Pixabay, or YouTube keys and unlock multi-source video search.<br><br>' +
+      'Generating an AI visual instead...</div>';
+    // Fallback to Pollinations image
+    const imgPrompt = prompt + ', cinematic, editorial photography, vibrant, social media visual, no text overlay';
+    _lastResearchImgUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(imgPrompt) + '?width=1024&height=1024&nologo=true&seed=' + Date.now();
+    imgEl.src = _lastResearchImgUrl;
+    imgCredit.textContent = 'AI-generated visual (Pollinations)';
+    imgWrap.style.display = 'block';
+  } else {
+    summaryEl.innerHTML = '<div style="color:var(--dim);font-size:0.83rem">No clips found for this topic. Try broader keywords, or the AI will generate a visual.</div>';
+    // Fallback image
+    const imgPrompt = prompt + ', cinematic, editorial photography, vibrant, social media visual';
+    _lastResearchImgUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(imgPrompt) + '?width=1024&height=1024&nologo=true&seed=' + Date.now();
+    imgEl.src = _lastResearchImgUrl;
+    imgCredit.textContent = 'AI-generated visual (Pollinations)';
+    imgWrap.style.display = 'block';
+  }
+
+  // Generate video script with Groq regardless
+  try {
+    const clipContext = clips.length > 0
+      ? 'Found ' + clips.length + ' video clips from ' + [...new Set(clips.map(c=>c.source))].join(', ') + ': ' + clips.map(c=>c.title).join(', ')
+      : 'No video clips found — writing a script for self-recording.';
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + GROQ_KEY_LIVE, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{
+          role: 'system',
+          content: 'You are a social media video expert. Write a short, ' + tone + ' video script (15-45 seconds) with a hook, body, and CTA. Include scene directions in [brackets]. Add a suggested caption with hashtags at the end, separated by "---". Return only the script and caption.'
+        }, {
+          role: 'user',
+          content: 'Topic: "' + prompt + '"
+Context: ' + clipContext + '
+Write the video script and caption.'
+        }],
+        max_tokens: 450
+      })
+    });
+    const groqData = await groqRes.json();
+    _lastVideoScript = groqData?.choices?.[0]?.message?.content || '';
+    if (_lastVideoScript) {
+      const parts = _lastVideoScript.split('---');
+      _lastResearchCaption = parts.length > 1 ? parts[parts.length - 1].trim() : '';
+      const scriptDisplay = document.getElementById('video-script-output') || summaryEl;
+      const scriptHtml =
+        '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px">' +
+        '<div style="font-size:0.72rem;font-weight:700;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">&#127916; Video Script</div>' +
+        '<div style="font-size:0.82rem;color:var(--text);line-height:1.7;white-space:pre-wrap">' + _lastVideoScript.replace(/</g,'&lt;') + '</div>' +
+        '</div>';
+      if (document.getElementById('video-script-output')) {
+        document.getElementById('video-script-output').innerHTML = scriptHtml;
+      }
+      useBothBtn.style.display = 'inline-block';
+      useBothBtn.textContent = 'Use Script as Caption';
+    }
+  } catch(e) { console.warn('Groq script error:', e); }
+
+  useImgBtn.style.display = 'inline-block';
+  useImgBtn.textContent = 'Use Thumbnail';
+}
+
+function useVideoClip(url, thumb) {
+  // Set the video URL in the post — attach as media
+  const preview = document.getElementById('preview-image');
+  if (preview && thumb) { preview.src = thumb; preview.style.display = 'block'; }
+  // Store video URL for posting (attach to compose)
+  window._pendingVideoUrl = url;
+  toast('Video clip selected ✓ — will attach when posting');
 }
 
 
