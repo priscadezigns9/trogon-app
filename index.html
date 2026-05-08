@@ -235,6 +235,89 @@ input,textarea,select{font-family:inherit}
 .btn-disconnect{background:transparent;border:1px solid var(--border);color:var(--dim);padding:5px 10px;border-radius:4px;font-size:0.75rem;transition:all 0.15s}
 .btn-disconnect:hover{border-color:var(--red);color:var(--red)}
 
+/* ── PRICING PAGE ── */
+.pricing-hero{text-align:center;padding:48px 24px 36px;max-width:720px;margin:0 auto}
+.pricing-hero h1{font-size:2rem;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,#fff 40%,#B01020);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pricing-hero p{color:var(--dim);font-size:0.95rem;line-height:1.7}
+.pricing-toggle{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0 36px;font-size:0.88rem;color:var(--dim)}
+.toggle-track{width:44px;height:24px;background:var(--surface2);border-radius:12px;position:relative;cursor:pointer;transition:background 0.2s;border:1px solid var(--border)}
+.toggle-track.on{background:var(--blue)}
+.toggle-thumb{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;left:3px;transition:left 0.2s}
+.toggle-track.on .toggle-thumb{left:21px}
+.save-badge{background:rgba(0,192,64,0.15);color:var(--green);font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:0.3px}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;padding:0 24px 48px;max-width:1000px;margin:0 auto}
+.plan-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px 24px;display:flex;flex-direction:column;position:relative;transition:border-color 0.2s,box-shadow 0.2s}
+.plan-card:hover{border-color:rgba(176,16,32,0.4)}
+.plan-card.featured{border-color:#B01020;box-shadow:0 0 32px rgba(176,16,32,0.18)}
+.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#B01020,#e02030);color:#fff;font-size:0.68rem;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:0.8px;text-transform:uppercase;white-space:nowrap}
+.plan-name{font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.plan-title{font-size:1.3rem;font-weight:800;margin-bottom:6px}
+.plan-price{font-size:2.2rem;font-weight:800;color:#fff;margin:14px 0 4px;line-height:1}
+.plan-price span{font-size:0.9rem;font-weight:400;color:var(--dim)}
+.plan-annual{font-size:0.75rem;color:var(--green);height:18px}
+.plan-desc{font-size:0.83rem;color:var(--dim);margin:12px 0 18px;line-height:1.6}
+.plan-divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+.plan-features{list-style:none;flex:1;display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.plan-features li{font-size:0.84rem;color:var(--dim);display:flex;align-items:flex-start;gap:9px;line-height:1.4}
+.plan-features li .pf-icon{flex-shrink:0;margin-top:1px;font-size:0.8rem}
+.plan-features li.yes{color:var(--text)}
+.plan-features li.yes .pf-icon{color:#00C040}
+.plan-features li.no{opacity:0.45}
+.plan-features li.no .pf-icon{color:var(--dim)}
+.plan-features li.soon .pf-icon{color:#f59e0b}
+.plan-cta{display:block;width:100%;padding:13px;border-radius:10px;font-size:0.9rem;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;transition:all 0.2s;border:none;letter-spacing:0.2px}
+.plan-cta.primary{background:linear-gradient(135deg,#B01020,#e02030);color:#fff}
+.plan-cta.primary:hover{opacity:0.88;transform:translateY(-1px)}
+.plan-cta.outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.plan-cta.outline:hover{border-color:#B01020;color:#B01020}
+.pricing-note{text-align:center;font-size:0.8rem;color:var(--dim);padding:0 24px 32px;max-width:700px;margin:0 auto}
+.addons-section{padding:0 24px 48px;max-width:860px;margin:0 auto}
+.addons-section h2{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.addons-section .sub{font-size:0.83rem;color:var(--dim);margin-bottom:20px}
+.addons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.addon-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:border-color 0.2s}
+.addon-card:hover{border-color:rgba(176,16,32,0.35)}
+.addon-info h4{font-size:0.9rem;font-weight:600;margin-bottom:3px}
+.addon-info p{font-size:0.78rem;color:var(--dim)}
+.addon-price{font-size:1rem;font-weight:700;color:#B01020;white-space:nowrap}
+.payment-section{padding:0 24px 48px;max-width:860px;margin:0 auto}
+.payment-section h2{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.payment-section .sub{font-size:0.83rem;color:var(--dim);margin-bottom:20px}
+.payment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.payment-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:10px}
+.payment-card .pm-name{font-weight:700;font-size:0.95rem}
+.payment-card .pm-desc{font-size:0.78rem;color:var(--dim);line-height:1.5}
+.payment-card a.pm-btn{display:block;padding:9px 14px;border-radius:8px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:opacity 0.2s}
+.payment-card a.pm-btn:hover{opacity:0.85}
+
+/* ── LIVE CHAT WIDGET ── */
+.chat-bubble{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:linear-gradient(135deg,#B01020,#e02030);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(176,16,32,0.45);z-index:9000;transition:transform 0.2s;border:none}
+.chat-bubble:hover{transform:scale(1.08)}
+.chat-bubble svg{width:24px;height:24px;fill:#fff}
+.chat-bubble .chat-notif{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#00C040;border-radius:50%;border:2px solid var(--bg);display:none}
+.chat-window{position:fixed;bottom:88px;right:24px;width:340px;max-height:520px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,0.5);z-index:9000;display:none;flex-direction:column;overflow:hidden}
+.chat-window.open{display:flex}
+.chat-header{background:linear-gradient(135deg,#B01020,#e02030);padding:16px 18px;display:flex;align-items:center;gap:12px}
+.chat-header-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.chat-header-info{flex:1}
+.chat-header-info .chat-name{font-weight:700;font-size:0.92rem;color:#fff}
+.chat-header-info .chat-status{font-size:0.72rem;color:rgba(255,255,255,0.75);display:flex;align-items:center;gap:5px}
+.chat-status-dot{width:7px;height:7px;border-radius:50%;background:#00C040}
+.chat-close{background:none;border:none;cursor:pointer;color:#fff;opacity:0.7;padding:4px;font-size:1.2rem;line-height:1}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:240px;max-height:320px}
+.chat-msg{max-width:82%;font-size:0.85rem;line-height:1.5;padding:10px 14px;border-radius:14px}
+.chat-msg.bot{background:var(--surface2);color:var(--text);border-bottom-left-radius:4px;align-self:flex-start}
+.chat-msg.user{background:linear-gradient(135deg,#B01020,#e02030);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.chat-msg.typing{opacity:0.6;font-style:italic}
+.chat-input-row{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 13px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;resize:none;max-height:90px}
+.chat-input:focus{border-color:rgba(176,16,32,0.5)}
+.chat-send{background:#B01020;border:none;border-radius:9px;padding:9px 14px;color:#fff;cursor:pointer;font-size:0.85rem;flex-shrink:0;transition:opacity 0.2s}
+.chat-send:hover{opacity:0.85}
+.chat-suggested{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}
+.chat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:0.75rem;color:var(--dim);cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.chat-chip:hover{border-color:#B01020;color:#B01020}
+
 /* ── FEED HUB ── */
 .feed-platform-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
 .feed-tab{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;font-size:0.83rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--dim);transition:all 0.2s}
@@ -443,6 +526,10 @@ input,textarea,select{font-family:inherit}
         <div class="nav-item" onclick="showPage('feed')">
           <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
           <span class="nav-label">Feed Hub</span>
+        </div>
+        <div class="nav-item" onclick="showPage('pricing')">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="nav-label">Plans & Pricing</span>
         </div>
         <div class="sidebar-section">Library</div>
         <div class="nav-item" onclick="showPage('media')">
@@ -887,6 +974,157 @@ input,textarea,select{font-family:inherit}
 
       </div>
 
+      <!-- PRICING -->
+      <div class="page" id="page-pricing">
+
+        <div class="pricing-hero">
+          <h1>Simple, Honest Pricing</h1>
+          <p>Unlimited posts and scheduling on every plan. Pay more only when you need premium platforms or more connected accounts.</p>
+          <!-- Monthly / Annual toggle -->
+          <div class="pricing-toggle">
+            <span>Monthly</span>
+            <div class="toggle-track" id="billing-toggle" onclick="toggleBilling()">
+              <div class="toggle-thumb"></div>
+            </div>
+            <span>Annual <span class="save-badge">Save 20%</span></span>
+          </div>
+        </div>
+
+        <!-- Plan Cards -->
+        <div class="plans-grid">
+
+          <!-- FREE -->
+          <div class="plan-card">
+            <div class="plan-name">Starter</div>
+            <div class="plan-title">Free</div>
+            <div class="plan-price">$0 <span>/ forever</span></div>
+            <div class="plan-annual">&nbsp;</div>
+            <div class="plan-desc">Get started with the core platforms. No credit card needed.</div>
+            <hr class="plan-divider">
+            <ul class="plan-features">
+              <li class="yes"><span class="pf-icon">✓</span> Unlimited posts & scheduling</li>
+              <li class="yes"><span class="pf-icon">✓</span> Up to 2 accounts per platform</li>
+              <li class="yes"><span class="pf-icon">✓</span> Facebook, Instagram, LinkedIn</li>
+              <li class="yes"><span class="pf-icon">✓</span> Pinterest &amp; Threads</li>
+              <li class="yes"><span class="pf-icon">✓</span> AI caption generator</li>
+              <li class="yes"><span class="pf-icon">✓</span> Feed Hub (view your feeds)</li>
+              <li class="yes"><span class="pf-icon">✓</span> Media library</li>
+              <li class="no"><span class="pf-icon">–</span> X / Twitter posting</li>
+              <li class="no"><span class="pf-icon">–</span> TikTok posting</li>
+              <li class="no"><span class="pf-icon">–</span> YouTube posting</li>
+              <li class="no"><span class="pf-icon">–</span> More than 2 accounts per platform</li>
+              <li class="no"><span class="pf-icon">–</span> AI Research &amp; Post</li>
+            </ul>
+            <button class="plan-cta outline" onclick="handlePlanSelect('free')">Get Started Free</button>
+          </div>
+
+          <!-- PRO -->
+          <div class="plan-card featured">
+            <div class="plan-badge">Most Popular</div>
+            <div class="plan-name">Growth</div>
+            <div class="plan-title">Pro</div>
+            <div class="plan-price" id="pro-price">$15 <span id="pro-period">/ month</span></div>
+            <div class="plan-annual" id="pro-annual">&nbsp;</div>
+            <div class="plan-desc">For creators and small businesses ready to grow on every platform.</div>
+            <hr class="plan-divider">
+            <ul class="plan-features">
+              <li class="yes"><span class="pf-icon">✓</span> Everything in Free</li>
+              <li class="yes"><span class="pf-icon">✓</span> Up to 5 accounts per platform</li>
+              <li class="yes"><span class="pf-icon">✓</span> X / Twitter posting</li>
+              <li class="yes"><span class="pf-icon">✓</span> YouTube posting</li>
+              <li class="yes"><span class="pf-icon">✓</span> AI Research &amp; Post</li>
+              <li class="yes"><span class="pf-icon">✓</span> AI image generation</li>
+              <li class="yes"><span class="pf-icon">✓</span> Full analytics dashboard</li>
+              <li class="yes"><span class="pf-icon">✓</span> Video clip search (Pexels/Pixabay)</li>
+              <li class="yes"><span class="pf-icon">✓</span> Priority support</li>
+              <li class="no"><span class="pf-icon">–</span> TikTok posting</li>
+              <li class="no"><span class="pf-icon">–</span> Unlimited accounts per platform</li>
+            </ul>
+            <button class="plan-cta primary" onclick="handlePlanSelect('pro')">Upgrade to Pro →</button>
+          </div>
+
+          <!-- AGENCY -->
+          <div class="plan-card">
+            <div class="plan-name">Business</div>
+            <div class="plan-title">Agency</div>
+            <div class="plan-price" id="agency-price">$39 <span id="agency-period">/ month</span></div>
+            <div class="plan-annual" id="agency-annual">&nbsp;</div>
+            <div class="plan-desc">For agencies and power users managing multiple brands at scale.</div>
+            <hr class="plan-divider">
+            <ul class="plan-features">
+              <li class="yes"><span class="pf-icon">✓</span> Everything in Pro</li>
+              <li class="yes"><span class="pf-icon">✓</span> TikTok posting</li>
+              <li class="yes"><span class="pf-icon">✓</span> Unlimited accounts per platform</li>
+              <li class="yes"><span class="pf-icon">✓</span> Multiple team members</li>
+              <li class="yes"><span class="pf-icon">✓</span> Client workspaces</li>
+              <li class="yes"><span class="pf-icon">✓</span> White-label ready</li>
+              <li class="yes"><span class="pf-icon">✓</span> Dedicated AI support agent</li>
+              <li class="yes"><span class="pf-icon">✓</span> Direct WhatsApp support line</li>
+              <li class="yes"><span class="pf-icon">✓</span> Early access to new features</li>
+            </ul>
+            <button class="plan-cta outline" onclick="handlePlanSelect('agency')">Get Agency Plan →</button>
+          </div>
+
+        </div>
+
+        <div class="pricing-note">
+          All plans include a <strong>7-day free trial</strong> — no credit card required. Cancel any time. Prices in USD.
+        </div>
+
+        <!-- Add-ons -->
+        <div class="addons-section">
+          <h2>Add-ons</h2>
+          <div class="sub">Bolt these onto any paid plan when you need them.</div>
+          <div class="addons-grid">
+            <div class="addon-card">
+              <div class="addon-info">
+                <h4>Extra Accounts</h4>
+                <p>Add 3 more accounts to any single platform</p>
+              </div>
+              <div class="addon-price">$5/mo</div>
+            </div>
+            <div class="addon-card">
+              <div class="addon-info">
+                <h4>TikTok Posting</h4>
+                <p>Add TikTok to Free or Pro plan</p>
+              </div>
+              <div class="addon-price">$10/mo</div>
+            </div>
+            <div class="addon-card">
+              <div class="addon-info">
+                <h4>Extra Team Member</h4>
+                <p>Add one more team seat to your workspace</p>
+              </div>
+              <div class="addon-price">$8/mo</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-section">
+          <h2>Payment Methods</h2>
+          <div class="sub">We accept multiple payment methods — wherever you are in the world.</div>
+          <div class="payment-grid">
+            <div class="payment-card">
+              <div class="pm-name">&#128179; PayPal</div>
+              <div class="pm-desc">Fast &amp; secure. No account needed — just enter your card or PayPal balance.</div>
+              <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=QXE9PL58QPU9L&item_name=Trogon+Subscription&currency_code=USD" target="_blank" class="pm-btn" style="background:#0070BA;color:#fff">Pay with PayPal →</a>
+            </div>
+            <div class="payment-card">
+              <div class="pm-name">&#127981; Wise</div>
+              <div class="pm-desc">Low-fee international transfers. Great for global clients.</div>
+              <a href="https://wise.com/pay/me/priscadezigns" target="_blank" class="pm-btn" style="background:#9FE870;color:#163300">Pay with Wise →</a>
+            </div>
+            <div class="payment-card">
+              <div class="pm-name">&#127968; Wire Transfer</div>
+              <div class="pm-desc">Bank transfer for larger plans. Contact us for banking details.</div>
+              <a href="#" onclick="openChat('I want to pay by wire transfer for my Trogon plan')" class="pm-btn" style="background:var(--surface2);color:var(--text)">Contact Us →</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div class="page-header">
@@ -1036,6 +1274,9 @@ async function handleAuth() {
 
 async function onLogin(user) {
   currentUser = user;
+  // Show chat bubble
+  const bubble = document.getElementById('chat-bubble');
+  if (bubble) { bubble.style.display = 'flex'; setTimeout(() => { document.getElementById('chat-notif').style.display = 'block'; }, 3000); }
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const hour = new Date().getHours();
@@ -1726,6 +1967,181 @@ function loadMoreFeed(platform) {
   if (platform === 'facebook' && _feedCursors['facebook']) {
     loadFacebookFeed(_feedCursors['facebook']);
   }
+}
+
+// ── PRICING ──────────────────────────────────────────────────
+let _annualBilling = false;
+const PRICES = {
+  pro:    { monthly: 15,  annual: 12 },
+  agency: { monthly: 39,  annual: 31 }
+};
+
+function toggleBilling() {
+  _annualBilling = !_annualBilling;
+  const track = document.getElementById('billing-toggle');
+  if (track) track.classList.toggle('on', _annualBilling);
+  updatePriceDisplay();
+}
+
+function updatePriceDisplay() {
+  ['pro', 'agency'].forEach(plan => {
+    const priceEl  = document.getElementById(plan + '-price');
+    const periodEl = document.getElementById(plan + '-period');
+    const annualEl = document.getElementById(plan + '-annual');
+    if (!priceEl) return;
+    const p = PRICES[plan];
+    const amt = _annualBilling ? p.annual : p.monthly;
+    const period = _annualBilling ? '/ month, billed annually' : '/ month';
+    const saving = _annualBilling ? `Save $${(p.monthly - p.annual) * 12}/yr` : '';
+    priceEl.childNodes[0].textContent = '$' + amt + ' ';
+    if (periodEl) periodEl.textContent = period;
+    if (annualEl) annualEl.textContent = saving;
+  });
+}
+
+function handlePlanSelect(plan) {
+  if (plan === 'free') {
+    toast('You're on the Free plan — enjoy!');
+    return;
+  }
+  // Open payment options
+  const price = _annualBilling
+    ? PRICES[plan].annual + '/mo (annual)'
+    : PRICES[plan].monthly + '/mo';
+  showPaymentModal(plan, price);
+}
+
+function showPaymentModal(plan, price) {
+  const planName = plan === 'pro' ? 'Pro' : 'Agency';
+  const msg = `To activate the ${planName} plan ($${price}), choose your payment method below or contact us — we'll get you set up right away.`;
+  // Use chat widget to guide them
+  openChat(`I want to upgrade to the ${planName} plan`);
+}
+
+// ── LIVE CHAT ─────────────────────────────────────────────────
+let _chatOpen = false;
+let _chatHistory = [];
+
+const CHAT_KB = {
+  'free plan': 'The Free plan includes unlimited scheduling and posting to Facebook, Instagram, LinkedIn, Pinterest and Threads — up to 2 accounts per platform. AI captions and Feed Hub are included. No credit card needed.',
+  'pro plan': 'Pro is $15/month (or $12/month billed annually). It adds X/Twitter posting, YouTube posting, AI Research & Post, AI image generation, full analytics, and up to 5 accounts per platform.',
+  'agency plan': 'Agency is $39/month (or $31/month billed annually). It includes everything in Pro plus TikTok posting, unlimited accounts, team members, client workspaces, and a direct WhatsApp support line.',
+  'tiktok': 'TikTok posting is available on the Agency plan ($39/mo) or as a $10/month add-on to any paid plan. TikTok's developer API requires a special approval — once you sign up, we handle that setup for you.',
+  'twitter': 'X/Twitter posting is included in the Pro and Agency plans. It's not available on the Free plan due to X's API costs.',
+  'youtube': 'YouTube posting is available on Pro and Agency plans. Connect your Google account under the Connect tab.',
+  'connect': 'To connect a social account, go to the Connect page in the sidebar. Click "Connect Facebook", "Connect Google", or any platform button — you'll be guided through a quick login on that platform. No API keys needed.',
+  'instagram': 'Instagram connects through your Facebook account. Go to Connect → Facebook, log in, and select which Instagram pages to include.',
+  'payment': 'We accept PayPal, Wise (international bank transfer), and wire transfer. Go to Plans & Pricing in the sidebar and scroll to Payment Methods, or I can connect you with the team directly.',
+  'paypal': 'You can pay via PayPal at paypal.me or through the PayPal button on the Plans & Pricing page. Payments go directly to priscadezigns9@gmail.com.',
+  'upgrade': 'To upgrade, go to Plans & Pricing in the sidebar, choose your plan, and select your payment method. Or just tell me which plan you want and I'll help you get set up.',
+  'cancel': 'You can cancel any time — no lock-in contracts. Just message us and we'll sort it out same day.',
+  'trial': 'All paid plans come with a 7-day free trial. No credit card required to start.',
+  'refund': 'We offer a 7-day money-back guarantee on all paid plans. If it's not right for you, just let us know.',
+  'schedule': 'You can schedule posts from the Compose page. Set your date and time, pick your platforms and pages, and hit Schedule. Unlimited posts on every plan.',
+  'ai': 'AI features include caption generation, Research & Post (AI writes from real-time web data), and AI image generation. Caption AI is available on all plans. Research & Post and image generation are Pro and Agency.',
+  'support': 'Free plan gets community support. Pro gets priority email support with fast response times. Agency gets a dedicated WhatsApp support line with direct access to our team.',
+  'default': 'Great question! I'm not 100% sure on that one. Let me connect you with the Trogon team — they'll get back to you quickly. Click the button below to send a message.'
+};
+
+function getChatResponse(msg) {
+  const lower = msg.toLowerCase();
+  for (const [key, val] of Object.entries(CHAT_KB)) {
+    if (key === 'default') continue;
+    if (lower.includes(key)) return val;
+  }
+  // Fuzzy matches
+  if (lower.includes('price') || lower.includes('cost') || lower.includes('how much')) {
+    return CHAT_KB['upgrade'];
+  }
+  if (lower.includes('connect') || lower.includes('link') || lower.includes('add account')) {
+    return CHAT_KB['connect'];
+  }
+  if (lower.includes('post') || lower.includes('schedul')) {
+    return CHAT_KB['schedule'];
+  }
+  return CHAT_KB['default'];
+}
+
+function toggleChat() {
+  _chatOpen = !_chatOpen;
+  const win = document.getElementById('chat-window');
+  if (win) win.classList.toggle('open', _chatOpen);
+  if (_chatOpen) {
+    document.getElementById('chat-notif').style.display = 'none';
+    setTimeout(() => document.getElementById('chat-input')?.focus(), 100);
+  }
+}
+
+function openChat(prefill) {
+  if (!_chatOpen) toggleChat();
+  if (prefill) {
+    const input = document.getElementById('chat-input');
+    if (input) input.value = prefill;
+    setTimeout(() => sendChatMessage(), 300);
+  }
+}
+
+function addChatMsg(text, role) {
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + role;
+  el.textContent = text;
+  const msgs = document.getElementById('chat-messages');
+  if (msgs) { msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight; }
+  return el;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Hide chips after first message
+  const chips = document.getElementById('chat-chips');
+  if (chips) chips.style.display = 'none';
+
+  addChatMsg(text, 'user');
+  _chatHistory.push({ role: 'user', content: text });
+
+  // Typing indicator
+  const typing = addChatMsg('Typing...', 'bot typing');
+
+  await new Promise(r => setTimeout(r, 600 + Math.random() * 600));
+
+  const response = getChatResponse(text);
+  typing.remove();
+  addChatMsg(response, 'bot');
+  _chatHistory.push({ role: 'assistant', content: response });
+
+  // If escalation needed
+  if (response === CHAT_KB['default']) {
+    setTimeout(() => {
+      const escalate = document.createElement('div');
+      escalate.className = 'chat-msg bot';
+      escalate.innerHTML = '<a href="https://wa.me/18687349661?text=Hi+Trogon+support,+I+need+help" target="_blank" style="color:#B01020;font-weight:600">Message us on WhatsApp →</a>';
+      const msgs = document.getElementById('chat-messages');
+      if (msgs) { msgs.appendChild(escalate); msgs.scrollTop = msgs.scrollHeight; }
+    }, 400);
+  }
+}
+
+function sendChip(text) {
+  const input = document.getElementById('chat-input');
+  if (input) input.value = text;
+  sendChatMessage();
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+  // Auto-resize textarea
+  const el = e.target;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
 }
 
 function repostFromFeed(text) {
@@ -2614,6 +3030,37 @@ async function deletePost(postId) {
       </div>
       <button onclick="closeOnboarding()" style="width:100%;background:#3B82F6;color:#fff;padding:13px;border-radius:8px;font-weight:700;font-size:0.9rem;border:none;cursor:pointer">Go to Dashboard</button>
     </div>
+  </div>
+</div>
+
+
+<!-- LIVE CHAT WIDGET -->
+<button class="chat-bubble" id="chat-bubble" onclick="toggleChat()" title="Chat with support" style="display:none">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+  <div class="chat-notif" id="chat-notif"></div>
+</button>
+
+<div class="chat-window" id="chat-window">
+  <div class="chat-header">
+    <div class="chat-header-avatar">&#129302;</div>
+    <div class="chat-header-info">
+      <div class="chat-name">Trogon Support</div>
+      <div class="chat-status"><span class="chat-status-dot"></span> Online — AI-powered</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">&#10005;</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg bot">Hey! &#128075; I'm Trogon's support assistant. Ask me anything about plans, features, or how to connect your accounts.</div>
+  </div>
+  <div class="chat-suggested" id="chat-chips">
+    <span class="chat-chip" onclick="sendChip('What's included in the free plan?')">Free plan features</span>
+    <span class="chat-chip" onclick="sendChip('How do I connect TikTok?')">Connect TikTok</span>
+    <span class="chat-chip" onclick="sendChip('How do I upgrade my plan?')">Upgrade plan</span>
+    <span class="chat-chip" onclick="sendChip('What payment methods do you accept?')">Payment options</span>
+  </div>
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chat-input" placeholder="Ask anything..." rows="1" onkeydown="chatKeydown(event)"></textarea>
+    <button class="chat-send" onclick="sendChatMessage()">&#10148;</button>
   </div>
 </div>
 
