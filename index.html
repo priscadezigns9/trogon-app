@@ -482,6 +482,7 @@ input,textarea,select{font-family:inherit}
                   <option value="caption">📝 Caption</option>
                   <option value="image">🖼️ Image</option>
                   <option value="video">🎬 Video Script</option>
+                  <option value="research">🔍 Research &amp; Post</option>
                 </select>
                 <select class="tone-select" id="ai-tone">
                   <option value="engaging">Engaging</option>
@@ -498,6 +499,20 @@ input,textarea,select{font-family:inherit}
               <div id="ai-image-result" style="display:none;margin-top:12px">
                 <img id="ai-generated-img" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="" alt="Generated image">
                 <button class="btn-sm" style="margin-top:8px" onclick="useGeneratedImage()">Use in post</button>
+              </div>
+              <div id="ai-research-result" style="display:none;margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px">
+                <div style="font-size:0.75rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">&#128269; Research Results</div>
+                <div id="ai-research-sources" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+                <div id="ai-research-summary" style="font-size:0.83rem;color:var(--text);line-height:1.6;margin-bottom:12px"></div>
+                <div id="ai-research-img-wrap" style="display:none;margin-bottom:10px">
+                  <img id="ai-research-img" style="width:100%;border-radius:8px;border:1px solid var(--border);max-height:300px;object-fit:cover" src="" alt="Research visual">
+                  <div style="font-size:0.7rem;color:var(--dim);margin-top:4px" id="ai-research-img-credit"></div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn-sm" onclick="useResearchCaption()">Use Caption</button>
+                  <button class="btn-sm" onclick="useResearchImage()" id="use-research-img-btn" style="display:none">Use Image</button>
+                  <button class="btn-sm" onclick="useResearchBoth()" id="use-research-both-btn" style="display:none">Use Both</button>
+                </div>
               </div>
               <div class="section-label">📎 Attach Image</div>
               <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
@@ -1089,6 +1104,11 @@ async function generateAI() {
         toast('Video script generated! 🎬');
       }
 
+    } else if (type === 'research') {
+      await generateResearchPost(prompt, tone);
+      btn.textContent = '✨ Generate'; btn.disabled = false;
+      return;
+
     } else {
       // Caption
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1124,6 +1144,161 @@ function useGeneratedImage() {
     if (preview) { preview.src = imgUrl; preview.style.display = 'block'; }
     toast('Image added to post ✓');
   }
+}
+
+// ── RESEARCH & POST ─────────────────────────────────────────
+let _lastResearchCaption = '';
+let _lastResearchImgUrl = '';
+
+async function generateResearchPost(prompt, tone) {
+  const researchPanel = document.getElementById('ai-research-result');
+  const summaryEl = document.getElementById('ai-research-summary');
+  const sourcesEl = document.getElementById('ai-research-sources');
+  const imgWrap = document.getElementById('ai-research-img-wrap');
+  const imgEl = document.getElementById('ai-research-img');
+  const imgCredit = document.getElementById('ai-research-img-credit');
+  const useImgBtn = document.getElementById('use-research-img-btn');
+  const useBothBtn = document.getElementById('use-research-both-btn');
+
+  // Hide the regular image panel if showing
+  document.getElementById('ai-image-result').style.display = 'none';
+
+  researchPanel.style.display = 'block';
+  summaryEl.textContent = 'Searching the web...';
+  sourcesEl.innerHTML = '';
+  imgWrap.style.display = 'none';
+  useImgBtn.style.display = 'none';
+  useBothBtn.style.display = 'none';
+  _lastResearchCaption = '';
+  _lastResearchImgUrl = '';
+
+  // STEP 1: Wikipedia search for real data
+  let webData = '';
+  let sources = [];
+
+  try {
+    const wikiSearch = await fetch(
+      'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' +
+      encodeURIComponent(prompt) + '&srlimit=3&format=json&origin=*'
+    );
+    const wikiData = await wikiSearch.json();
+    const titles = (wikiData?.query?.search || []).map(r => r.title).slice(0, 3);
+
+    if (titles.length > 0) {
+      const extractRes = await fetch(
+        'https://en.wikipedia.org/w/api.php?action=query&titles=' +
+        titles.map(t => encodeURIComponent(t)).join('|') +
+        '&prop=extracts|pageimages&exintro=true&explaintext=true&exsentences=3&piprop=original&format=json&origin=*'
+      );
+      const extractData = await extractRes.json();
+      const pages = Object.values(extractData?.query?.pages || {});
+
+      for (const page of pages) {
+        if (page.extract) {
+          webData += page.title + ': ' + page.extract.slice(0, 400) + ' ';
+          sources.push({ title: page.title, url: 'https://en.wikipedia.org/wiki/' + encodeURIComponent(page.title) });
+        }
+        if (!_lastResearchImgUrl && page?.original?.source) {
+          _lastResearchImgUrl = page.original.source;
+          imgEl.src = _lastResearchImgUrl;
+          imgCredit.textContent = 'Source: Wikipedia — ' + page.title;
+        }
+      }
+    }
+  } catch(e) { console.warn('Wikipedia fetch failed:', e); }
+
+  // STEP 2: DuckDuckGo Instant Answer for current/trending data
+  try {
+    const ddgRes = await fetch(
+      'https://api.duckduckgo.com/?q=' + encodeURIComponent(prompt) + '&format=json&no_redirect=1&no_html=1'
+    );
+    const ddgData = await ddgRes.json();
+    if (ddgData?.AbstractText) {
+      webData += ' ' + ddgData.AbstractText.slice(0, 300);
+    }
+    if (!_lastResearchImgUrl && ddgData?.Image && ddgData.Image.length > 5) {
+      _lastResearchImgUrl = 'https://duckduckgo.com' + ddgData.Image;
+      imgEl.src = _lastResearchImgUrl;
+      imgCredit.textContent = 'Source: DuckDuckGo';
+    }
+    if (ddgData?.AbstractSource) {
+      sources.push({ title: ddgData.AbstractSource, url: ddgData.AbstractURL });
+    }
+  } catch(e) { console.warn('DDG fetch failed:', e); }
+
+  // Show sources
+  if (sources.length > 0) {
+    sourcesEl.innerHTML = sources.map(s =>
+      '<a href="' + s.url + '" target="_blank" style="font-size:0.7rem;background:rgba(59,130,246,0.12);color:var(--blue);padding:2px 8px;border-radius:12px;text-decoration:none;border:1px solid rgba(59,130,246,0.25)">' + s.title + '</a>'
+    ).join('');
+  }
+
+  summaryEl.textContent = 'Writing your post with real data...';
+
+  // STEP 3: Groq writes the social post using the research
+  const hasData = webData.trim().length > 20;
+  const sysPrompt = hasData
+    ? 'You are a social media expert. Use the provided research data to write a ' + tone + ', factual, engaging social media caption. Include specific facts, names, or numbers from the research. Add relevant hashtags at the end. Max 3 short paragraphs. Return ONLY the caption text and hashtags.'
+    : 'You are a social media expert. Write a ' + tone + ', engaging social media post about: "' + prompt + '". Include relevant facts or insights. Add hashtags. Max 3 paragraphs. Return ONLY the caption.';
+
+  const userMsg = hasData
+    ? 'Topic: "' + prompt + '"\n\nResearch data:\n' + webData.slice(0, 1200) + '\n\nWrite the social media post using this real data.'
+    : 'Write a social media post about: ' + prompt;
+
+  try {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + GROQ_KEY_LIVE, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: userMsg }],
+        max_tokens: 400
+      })
+    });
+    const groqData = await groqRes.json();
+    _lastResearchCaption = groqData?.choices?.[0]?.message?.content || '';
+    summaryEl.innerHTML = _lastResearchCaption
+      ? '<strong style="color:var(--blue);font-size:0.7rem">Generated Caption:</strong><br>' + _lastResearchCaption.replace(/\n/g, '<br>')
+      : 'Could not generate caption. Try a more specific topic.';
+  } catch(e) {
+    summaryEl.textContent = 'AI error — try again.';
+    console.error(e);
+  }
+
+  // STEP 4: If no real image found, generate one with Pollinations AI
+  if (!_lastResearchImgUrl) {
+    const imgPromptText = prompt + ', editorial photography, vibrant, professional, social media post visual, no text overlay, clean composition';
+    _lastResearchImgUrl = 'https://image.pollinations.ai/prompt/' +
+      encodeURIComponent(imgPromptText) + '?width=1024&height=1024&nologo=true&seed=' + Date.now();
+    imgEl.src = _lastResearchImgUrl;
+    imgCredit.textContent = 'AI-generated visual (Pollinations)';
+  }
+
+  imgWrap.style.display = 'block';
+  useImgBtn.style.display = 'inline-block';
+  if (_lastResearchCaption) useBothBtn.style.display = 'inline-block';
+}
+
+function useResearchCaption() {
+  if (_lastResearchCaption) {
+    document.getElementById('compose-text').value = _lastResearchCaption;
+    updatePreview(); updateCharCount();
+    toast('Caption added ✓');
+  }
+}
+
+function useResearchImage() {
+  if (_lastResearchImgUrl) {
+    const preview = document.getElementById('preview-image');
+    if (preview) { preview.src = _lastResearchImgUrl; preview.style.display = 'block'; }
+    toast('Image added to post ✓');
+  }
+}
+
+function useResearchBoth() {
+  useResearchCaption();
+  useResearchImage();
+  toast('Caption + image added ✓');
 }
 
 
