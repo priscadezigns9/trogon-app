@@ -1023,22 +1023,23 @@ input,textarea,select{font-family:inherit}
             <div class="plan-badge">Most Popular</div>
             <div class="plan-name">Growth</div>
             <div class="plan-title">Pro</div>
-            <div class="plan-price" id="pro-price">$15 <span id="pro-period">/ month</span></div>
+            <div class="plan-price" id="pro-price">$18 <span id="pro-period">/ month</span></div>
             <div class="plan-annual" id="pro-annual">&nbsp;</div>
-            <div class="plan-desc">For creators and small businesses ready to grow on every platform.</div>
+            <div class="plan-desc">Every platform, every feature. The complete toolkit for creators and growing businesses.</div>
             <hr class="plan-divider">
             <ul class="plan-features">
               <li class="yes"><span class="pf-icon">✓</span> Everything in Free</li>
               <li class="yes"><span class="pf-icon">✓</span> Up to 5 accounts per platform</li>
               <li class="yes"><span class="pf-icon">✓</span> X / Twitter posting</li>
+              <li class="yes"><span class="pf-icon">✓</span> TikTok posting</li>
               <li class="yes"><span class="pf-icon">✓</span> YouTube posting</li>
               <li class="yes"><span class="pf-icon">✓</span> AI Research &amp; Post</li>
               <li class="yes"><span class="pf-icon">✓</span> AI image generation</li>
               <li class="yes"><span class="pf-icon">✓</span> Full analytics dashboard</li>
               <li class="yes"><span class="pf-icon">✓</span> Video clip search (Pexels/Pixabay)</li>
               <li class="yes"><span class="pf-icon">✓</span> Priority support</li>
-              <li class="no"><span class="pf-icon">–</span> TikTok posting</li>
               <li class="no"><span class="pf-icon">–</span> Unlimited accounts per platform</li>
+              <li class="no"><span class="pf-icon">–</span> Team members &amp; client workspaces</li>
             </ul>
             <button class="plan-cta primary" onclick="handlePlanSelect('pro')">Upgrade to Pro →</button>
           </div>
@@ -1047,7 +1048,7 @@ input,textarea,select{font-family:inherit}
           <div class="plan-card">
             <div class="plan-name">Business</div>
             <div class="plan-title">Agency</div>
-            <div class="plan-price" id="agency-price">$39 <span id="agency-period">/ month</span></div>
+            <div class="plan-price" id="agency-price">$45 <span id="agency-period">/ month</span></div>
             <div class="plan-annual" id="agency-annual">&nbsp;</div>
             <div class="plan-desc">For agencies and power users managing multiple brands at scale.</div>
             <hr class="plan-divider">
@@ -1085,10 +1086,10 @@ input,textarea,select{font-family:inherit}
             </div>
             <div class="addon-card">
               <div class="addon-info">
-                <h4>TikTok Posting</h4>
-                <p>Add TikTok to Free or Pro plan</p>
+                <h4>White-Label</h4>
+                <p>Remove Trogon branding — your logo, your domain</p>
               </div>
-              <div class="addon-price">$10/mo</div>
+              <div class="addon-price">$20/mo</div>
             </div>
             <div class="addon-card">
               <div class="addon-info">
@@ -1972,8 +1973,8 @@ function loadMoreFeed(platform) {
 // ── PRICING ──────────────────────────────────────────────────
 let _annualBilling = false;
 const PRICES = {
-  pro:    { monthly: 15,  annual: 12 },
-  agency: { monthly: 39,  annual: 31 }
+  pro:    { monthly: 18,  annual: 14 },
+  agency: { monthly: 45,  annual: 36 }
 };
 
 function toggleBilling() {
@@ -2024,9 +2025,9 @@ let _chatHistory = [];
 
 const CHAT_KB = {
   'free plan': 'The Free plan includes unlimited scheduling and posting to Facebook, Instagram, LinkedIn, Pinterest and Threads — up to 2 accounts per platform. AI captions and Feed Hub are included. No credit card needed.',
-  'pro plan': 'Pro is $15/month (or $12/month billed annually). It adds X/Twitter posting, YouTube posting, AI Research & Post, AI image generation, full analytics, and up to 5 accounts per platform.',
-  'agency plan': 'Agency is $39/month (or $31/month billed annually). It includes everything in Pro plus TikTok posting, unlimited accounts, team members, client workspaces, and a direct WhatsApp support line.',
-  'tiktok': 'TikTok posting is available on the Agency plan ($39/mo) or as a $10/month add-on to any paid plan. TikTok's developer API requires a special approval — once you sign up, we handle that setup for you.',
+  'pro plan': 'Pro is $18/month (or $14/month billed annually). It includes everything — X/Twitter, TikTok, YouTube, AI Research & Post, AI image generation, full analytics, and up to 5 accounts per platform.',
+  'agency plan': 'Agency is $45/month (or $36/month billed annually). It includes everything in Pro plus unlimited accounts, team members, client workspaces, white-label options, and a direct WhatsApp support line.',
+  'tiktok': 'TikTok posting is included in the Pro ($18/mo) and Agency ($45/mo) plans. Not available on Free. TikTok\'s API requires special approval — we handle that setup for you automatically when you upgrade.',
   'twitter': 'X/Twitter posting is included in the Pro and Agency plans. It's not available on the Free plan due to X's API costs.',
   'youtube': 'YouTube posting is available on Pro and Agency plans. Connect your Google account under the Connect tab.',
   'connect': 'To connect a social account, go to the Connect page in the sidebar. Click "Connect Facebook", "Connect Google", or any platform button — you'll be guided through a quick login on that platform. No API keys needed.',
