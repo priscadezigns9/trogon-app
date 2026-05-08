@@ -1009,9 +1009,9 @@ input,textarea,select{font-family:inherit}
               <li class="yes"><span class="pf-icon">✓</span> AI caption generator</li>
               <li class="yes"><span class="pf-icon">✓</span> Feed Hub (view your feeds)</li>
               <li class="yes"><span class="pf-icon">✓</span> Media library</li>
-              <li class="no"><span class="pf-icon">–</span> X / Twitter posting</li>
-              <li class="no"><span class="pf-icon">–</span> TikTok posting</li>
               <li class="no"><span class="pf-icon">–</span> YouTube posting</li>
+              <li class="no"><span class="pf-icon">–</span> X / Twitter (add-on on Pro+)</li>
+              <li class="no"><span class="pf-icon">–</span> TikTok (add-on on Pro+)</li>
               <li class="no"><span class="pf-icon">–</span> More than 2 accounts per platform</li>
               <li class="no"><span class="pf-icon">–</span> AI Research &amp; Post</li>
             </ul>
@@ -1025,19 +1025,19 @@ input,textarea,select{font-family:inherit}
             <div class="plan-title">Pro</div>
             <div class="plan-price" id="pro-price">$18 <span id="pro-period">/ month</span></div>
             <div class="plan-annual" id="pro-annual">&nbsp;</div>
-            <div class="plan-desc">Every platform, every feature. The complete toolkit for creators and growing businesses.</div>
+            <div class="plan-desc">More accounts, full AI suite, and YouTube. Add TikTok or X anytime — only pay when you need them.</div>
             <hr class="plan-divider">
             <ul class="plan-features">
               <li class="yes"><span class="pf-icon">✓</span> Everything in Free</li>
               <li class="yes"><span class="pf-icon">✓</span> Up to 5 accounts per platform</li>
-              <li class="yes"><span class="pf-icon">✓</span> X / Twitter posting</li>
-              <li class="yes"><span class="pf-icon">✓</span> TikTok posting</li>
               <li class="yes"><span class="pf-icon">✓</span> YouTube posting</li>
               <li class="yes"><span class="pf-icon">✓</span> AI Research &amp; Post</li>
               <li class="yes"><span class="pf-icon">✓</span> AI image generation</li>
               <li class="yes"><span class="pf-icon">✓</span> Full analytics dashboard</li>
               <li class="yes"><span class="pf-icon">✓</span> Video clip search (Pexels/Pixabay)</li>
               <li class="yes"><span class="pf-icon">✓</span> Priority support</li>
+              <li class="soon"><span class="pf-icon">+</span> TikTok add-on available (+$12/mo)</li>
+              <li class="soon"><span class="pf-icon">+</span> X / Twitter add-on available (+$8/mo)</li>
               <li class="no"><span class="pf-icon">–</span> Unlimited accounts per platform</li>
               <li class="no"><span class="pf-icon">–</span> Team members &amp; client workspaces</li>
             </ul>
@@ -1075,28 +1075,42 @@ input,textarea,select{font-family:inherit}
         <!-- Add-ons -->
         <div class="addons-section">
           <h2>Add-ons</h2>
-          <div class="sub">Bolt these onto any paid plan when you need them.</div>
+          <div class="sub">Only pay for what you actually use. Add or remove anytime.</div>
           <div class="addons-grid">
             <div class="addon-card">
               <div class="addon-info">
-                <h4>Extra Accounts</h4>
-                <p>Add 3 more accounts to any single platform</p>
+                <h4>&#127925; TikTok Posting</h4>
+                <p>Post &amp; schedule to TikTok — Pro &amp; Agency only</p>
               </div>
-              <div class="addon-price">$5/mo</div>
+              <div class="addon-price">+$12/mo</div>
             </div>
             <div class="addon-card">
               <div class="addon-info">
-                <h4>White-Label</h4>
-                <p>Remove Trogon branding — your logo, your domain</p>
+                <h4>&#10006; X / Twitter Posting</h4>
+                <p>Post &amp; schedule to X/Twitter — Pro &amp; Agency only</p>
               </div>
-              <div class="addon-price">$20/mo</div>
+              <div class="addon-price">+$8/mo</div>
+            </div>
+            <div class="addon-card">
+              <div class="addon-info">
+                <h4>Extra Accounts</h4>
+                <p>Add 3 more connected accounts to any single platform</p>
+              </div>
+              <div class="addon-price">+$5/mo</div>
             </div>
             <div class="addon-card">
               <div class="addon-info">
                 <h4>Extra Team Member</h4>
                 <p>Add one more team seat to your workspace</p>
               </div>
-              <div class="addon-price">$8/mo</div>
+              <div class="addon-price">+$8/mo</div>
+            </div>
+            <div class="addon-card">
+              <div class="addon-info">
+                <h4>White-Label</h4>
+                <p>Remove Trogon branding — your logo, your domain</p>
+              </div>
+              <div class="addon-price">+$20/mo</div>
             </div>
           </div>
         </div>
@@ -2027,7 +2041,7 @@ const CHAT_KB = {
   'free plan': 'The Free plan includes unlimited scheduling and posting to Facebook, Instagram, LinkedIn, Pinterest and Threads — up to 2 accounts per platform. AI captions and Feed Hub are included. No credit card needed.',
   'pro plan': 'Pro is $18/month (or $14/month billed annually). It includes everything — X/Twitter, TikTok, YouTube, AI Research & Post, AI image generation, full analytics, and up to 5 accounts per platform.',
   'agency plan': 'Agency is $45/month (or $36/month billed annually). It includes everything in Pro plus unlimited accounts, team members, client workspaces, white-label options, and a direct WhatsApp support line.',
-  'tiktok': 'TikTok posting is included in the Pro ($18/mo) and Agency ($45/mo) plans. Not available on Free. TikTok\'s API requires special approval — we handle that setup for you automatically when you upgrade.',
+  'tiktok': 'TikTok posting is a $12/month add-on available on Pro ($18/mo) and Agency ($45/mo) plans. Not available on Free. You only pay when you actually activate it — we handle the API setup for you.',
   'twitter': 'X/Twitter posting is included in the Pro and Agency plans. It's not available on the Free plan due to X's API costs.',
   'youtube': 'YouTube posting is available on Pro and Agency plans. Connect your Google account under the Connect tab.',
   'connect': 'To connect a social account, go to the Connect page in the sidebar. Click "Connect Facebook", "Connect Google", or any platform button — you'll be guided through a quick login on that platform. No API keys needed.',
