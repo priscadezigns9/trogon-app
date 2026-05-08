@@ -360,13 +360,14 @@ input,textarea,select{font-family:inherit}
       <span>TROGON</span>
     </div>
     <div class="auth-title" id="auth-title">Welcome back</div>
-    <div class="auth-sub" id="auth-sub">Sign in to continue</div>
+    <div class="auth-sub" id="auth-sub">Sign in with Google, Facebook, or email</div>
 
     <!-- SOCIAL LOGINS -->
     <div class="social-btns">
-      <button class="btn-social btn-google" onclick="signInWithGoogle()">
+      <button class="btn-social btn-google" onclick="signInWithGoogle()" style="position:relative;border:2px solid #4285F4">
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.3 0 24 0 14.7 0 6.8 5.4 2.9 13.2l7.9 6.1C12.6 13.2 17.9 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.5c-.5 2.9-2.1 5.3-4.5 6.9l7 5.4c4.1-3.8 6.5-9.4 6.5-16.2z"/><path fill="#FBBC05" d="M10.8 28.7A14.6 14.6 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7L2.3 13.2A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7-5.4c-2.1 1.4-4.8 2.2-8 2.2-6.1 0-11.3-3.7-13.2-9.1l-8.1 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
         Continue with Google
+        <span style="position:absolute;top:-8px;right:10px;background:#4285F4;color:#fff;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;text-transform:uppercase">Recommended</span>
       </button>
       <button class="btn-social btn-facebook" onclick="signInWithFacebook()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
@@ -733,6 +734,14 @@ input,textarea,select{font-family:inherit}
             <button class="btn-connect btn-outline" disabled style="opacity:0.4">Coming Soon</button>
           </div>
         </div>
+          <div class="platform-card" id="google-connect-card">
+            <div class="platform-icon">
+              <svg width="36" height="36" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.3 0 24 0 14.7 0 6.8 5.4 2.9 13.2l7.9 6.1C12.6 13.2 17.9 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.5c-.5 2.9-2.1 5.3-4.5 6.9l7 5.4c4.1-3.8 6.5-9.4 6.5-16.2z"/><path fill="#FBBC05" d="M10.8 28.7A14.6 14.6 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7L2.3 13.2A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7-5.4c-2.1 1.4-4.8 2.2-8 2.2-6.1 0-11.3-3.7-13.2-9.1l-8.1 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
+            </div>
+            <div class="platform-name">Google / YouTube</div>
+            <div class="platform-desc">Connect your Google account to manage YouTube. Also lets you sign in with Google.</div>
+            <button class="btn-connect" id="google-connect-btn" onclick="connectGoogle()">Connect Google</button>
+          </div>
           <div class="platform-card">
             <div class="platform-icon">
               <svg width="36" height="36" viewBox="0 0 192 192" fill="none">
@@ -1129,6 +1138,30 @@ function renderConnectedPages() {
 }
 
 // ── FACEBOOK CONNECT ──
+async function connectGoogle() {
+  const btn = document.getElementById('google-connect-btn');
+  if (btn) { btn.textContent = 'Connecting...'; btn.disabled = true; }
+  try {
+    const { data, error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href,
+        scopes: 'https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.upload',
+        queryParams: { access_type: 'offline', prompt: 'consent' }
+      }
+    });
+    if (error) {
+      toast(error.message || 'Google connect failed', 'error');
+      if (btn) { btn.textContent = 'Connect Google'; btn.disabled = false; }
+    }
+    // After OAuth redirect, Supabase session will have Google provider token
+    // which can be used for YouTube API calls
+  } catch(e) {
+    toast('Google connect failed — try again', 'error');
+    if (btn) { btn.textContent = 'Connect Google'; btn.disabled = false; }
+  }
+}
+
 function connectFacebook() {
   if (FB_APP_ID === 'FB_APP_ID_PLACEHOLDER') {
     toast('Facebook App ID not configured yet','error'); return;
@@ -2352,11 +2385,23 @@ async function signInWithWallet() {
 
 // ── SOCIAL AUTH ──
 async function signInWithGoogle() {
-  const { data, error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.href }
-  });
-  if (error) toast(error.message, 'error');
+  try {
+    const btn = document.querySelector('.btn-google');
+    if (btn) { btn.textContent = 'Connecting...'; btn.disabled = true; }
+    const { data, error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href,
+        queryParams: { access_type: 'offline', prompt: 'select_account' }
+      }
+    });
+    if (error) {
+      toast(error.message || 'Google sign-in failed', 'error');
+      if (btn) { btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.2 30.3 0 24 0 14.7 0 6.8 5.4 2.9 13.2l7.9 6.1C12.6 13.2 17.9 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.5c-.5 2.9-2.1 5.3-4.5 6.9l7 5.4c4.1-3.8 6.5-9.4 6.5-16.2z"/><path fill="#FBBC05" d="M10.8 28.7A14.6 14.6 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7L2.3 13.2A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7-5.4c-2.1 1.4-4.8 2.2-8 2.2-6.1 0-11.3-3.7-13.2-9.1l-8.1 6.1C6.7 42.6 14.7 48 24 48z"/></svg> Continue with Google'; btn.disabled = false; }
+    }
+  } catch(e) {
+    toast('Google sign-in unavailable — try email or Facebook', 'error');
+  }
 }
 
 async function signInWithFacebook() {
