@@ -9,7 +9,7 @@
 body{background:#0f1117;color:#e8eaf6;font-family:Inter,system-ui,sans-serif;
 display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}
 .logo{width:72px;height:72px;border-radius:50%;object-fit:cover}
-.name{font-size:1.1rem;font-weight:800;letter-spacing:4px;color:#e8eaf6}
+.name{font-size:1.1rem;font-weight:800;letter-spacing:4px}
 .sub{color:#555;font-size:0.8rem}
 </style>
 </head>
@@ -18,13 +18,25 @@ display:flex;align-items:center;justify-content:center;height:100vh;flex-directi
 <div class="name">TROGON</div>
 <div class="sub">Loading...</div>
 <script>
-// Set keys in localStorage
+// Set localStorage keys immediately
 localStorage.setItem('trogon_sb_key','sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS');
-if(!localStorage.getItem('trogon_groq_key')){
-  localStorage.setItem('trogon_groq_key','gsk_placeholder');
-}
-// Redirect to the real app
-window.location.replace('/app.html');
+if(!localStorage.getItem('trogon_groq_key')) localStorage.setItem('trogon_groq_key','gsk_placeholder');
+
+// Fetch app.html, inject our patch script into <head>, then write to page
+fetch('/app.html')
+  .then(function(r){ return r.text(); })
+  .then(function(html){
+    // Inject keys.js into the <head> of app.html so it runs with the app
+    var patched = html.replace('</head>', '<script src="/keys.js"><\/script></head>');
+    // Use blob URL to avoid document.write stripping issues
+    var blob = new Blob([patched], {type: 'text/html'});
+    var url = URL.createObjectURL(blob);
+    window.location.replace(url);
+  })
+  .catch(function(){
+    // Fallback: direct redirect
+    window.location.replace('/app.html');
+  });
 </script>
 </body>
 </html>
