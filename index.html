@@ -25,24 +25,38 @@ display:flex;align-items:center;justify-content:center;height:100vh;flex-directi
     localStorage.setItem('trogon_groq_key','gsk_placeholder');
   }
 
-  // Check if this is an OAuth callback (Supabase redirects back with hash or code)
-  var isCallback = window.location.hash.includes('access_token') || 
+  var isCallback = window.location.hash.includes('access_token') ||
                    window.location.search.includes('code=') ||
                    window.location.search.includes('error=');
 
   document.getElementById('status').textContent = isCallback ? 'Signing you in...' : 'Loading dashboard...';
 
-  // Load the real app
-  fetch('/app.html')
-    .then(function(r){ return r.text(); })
-    .then(function(html){
-      document.open();
-      document.write(html);
-      document.close();
-    })
-    .catch(function(){
-      document.getElementById('status').textContent = 'Error loading app. Please refresh.';
-    });
+  // Load autoconfig first, then the real app
+  var script = document.createElement('script');
+  script.src = '/autoconfig.js';
+  script.onload = function() {
+    fetch('/app.html')
+      .then(function(r){ return r.text(); })
+      .then(function(html){
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(function(){
+        document.getElementById('status').textContent = 'Error loading app. Please refresh.';
+      });
+  };
+  script.onerror = function() {
+    // autoconfig failed to load, just load app directly
+    fetch('/app.html')
+      .then(function(r){ return r.text(); })
+      .then(function(html){
+        document.open();
+        document.write(html);
+        document.close();
+      });
+  };
+  document.head.appendChild(script);
 })();
 </script>
 </body>
