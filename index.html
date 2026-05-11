@@ -18,46 +18,34 @@ display:flex;align-items:center;justify-content:center;height:100vh;flex-directi
 <div class="name">TROGON</div>
 <div class="sub" id="status">Loading...</div>
 <script>
-// Inline the key patch immediately — before anything else
 var REAL_KEY = 'sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS';
-var SB_URL = 'https://sazhdnqzaqpqcralmthh.supabase.co';
-
-// Override localStorage FIRST so app.html line 1598 reads the real key
 localStorage.setItem('trogon_sb_key', REAL_KEY);
 if(!localStorage.getItem('trogon_groq_key')) localStorage.setItem('trogon_groq_key','gsk_placeholder');
 
-// Also override SUPABASE_ANON_KEY on window so const declaration in app.html picks it up
-// (can't override a const, but we can set a global that the code checks)
-window.TROGON_SB_KEY_OVERRIDE = REAL_KEY;
-
-document.getElementById('status').textContent = 'Initializing...';
-
-// Fetch both sb-fix.js and app.html, inline the fix into app.html head
-Promise.all([
-  fetch('/sb-fix.js').then(function(r){ return r.text(); }),
-  fetch('/app.html').then(function(r){ return r.text(); })
-]).then(function(results) {
-  var fixJs = results[0];
-  var appHtml = results[1];
-  
-  // Patch SUPABASE_ANON_KEY placeholder with real key directly in the HTML
-  appHtml = appHtml.replace(
-    "const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';",
-    "const SUPABASE_ANON_KEY = '" + REAL_KEY + "';"
-  );
-  
-  // Inject fix script inline into <head> (runs synchronously before app scripts)
-  var inlineScript = '<script>' + fixJs + '<\/script>';
-  appHtml = appHtml.replace('<head>', '<head>' + inlineScript);
-  
-  document.open();
-  document.write(appHtml);
-  document.close();
-}).catch(function(e) {
-  console.error('Loader error:', e);
-  localStorage.setItem('trogon_sb_key', REAL_KEY);
+// Register service worker to patch app.html on every load
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js').then(function(reg) {
+    console.log('[Trogon] SW registered');
+    // Wait for SW to be active, then redirect
+    if (reg.active) {
+      window.location.replace('/app.html');
+    } else {
+      var sw = reg.installing || reg.waiting;
+      sw.addEventListener('statechange', function() {
+        if (sw.state === 'activated') {
+          window.location.replace('/app.html');
+        }
+      });
+      // Fallback timeout
+      setTimeout(function(){ window.location.replace('/app.html'); }, 2000);
+    }
+  }).catch(function(e) {
+    console.log('[Trogon] SW failed, direct redirect:', e);
+    window.location.replace('/app.html');
+  });
+} else {
   window.location.replace('/app.html');
-});
+}
 </script>
 </body>
 </html>
