@@ -16,11 +16,32 @@ display:flex;align-items:center;justify-content:center;height:100vh;flex-directi
 <body>
 <img src="/trogon_logo.png" class="logo" onerror="this.style.display='none'">
 <div class="name">TROGON</div>
-<div class="sub">Loading...</div>
+<div class="sub" id="status">Loading...</div>
 <script>
-localStorage.setItem('trogon_sb_key','sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS');
+var REAL_KEY = 'sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS';
+localStorage.setItem('trogon_sb_key', REAL_KEY);
 if(!localStorage.getItem('trogon_groq_key')) localStorage.setItem('trogon_groq_key','gsk_placeholder');
-window.location.replace('/app.html');
+document.getElementById('status').textContent = 'Starting...';
+
+// Fetch app.html, inject sb-fix.js as first script in <head>, write to page
+fetch('/app.html')
+  .then(function(r){ return r.text(); })
+  .then(function(html){
+    // Inject sb-fix.js BEFORE all other scripts
+    var patched = html.replace('<head>', '<head><script src="/sb-fix.js"><\/script>');
+    // Write to page using a data URL approach
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(patched, 'text/html');
+    
+    // Replace current document
+    document.open('text/html');
+    document.write(patched);
+    document.close();
+  })
+  .catch(function(e){
+    document.getElementById('status').textContent = 'Error. Redirecting...';
+    setTimeout(function(){ window.location.replace('/app.html'); }, 1000);
+  });
 </script>
 </body>
 </html>
