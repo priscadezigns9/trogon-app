@@ -1590,7 +1590,7 @@ input,textarea,select{font-family:inherit}
 const SUPABASE_URL = 'https://sazhdnqzaqpqcralmthh.supabase.co';
 const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';
 const GROQ_KEY = 'GROQ_KEY_PLACEHOLDER';
-const FB_APP_ID = '1322108873124078';
+const FB_APP_ID = '1631501404705';
 
 const { createClient } = supabase;
 
@@ -1784,7 +1784,7 @@ async function connectGoogle() {
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.href,
+        redirectTo: 'https://trogon-app.vercel.app/app.html',
         scopes: 'https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.upload',
         queryParams: { access_type: 'offline', prompt: 'consent' }
       }
@@ -3543,7 +3543,7 @@ async function signInWithGoogle() {
     const { data, error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.href,
+        redirectTo: 'https://trogon-app.vercel.app/app.html',
         queryParams: { access_type: 'offline', prompt: 'select_account' }
       }
     });
@@ -3559,7 +3559,7 @@ async function signInWithGoogle() {
 async function signInWithFacebook() {
   const { data, error } = await sb.auth.signInWithOAuth({
     provider: 'facebook',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: 'https://trogon-app.vercel.app/app.html' }
   });
   if (error) toast(error.message, 'error');
 }
@@ -3567,7 +3567,7 @@ async function signInWithFacebook() {
 async function signInWithApple() {
   const { data, error } = await sb.auth.signInWithOAuth({
     provider: 'apple',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: 'https://trogon-app.vercel.app/app.html' }
   });
   if (error) toast(error.message, 'error');
 }
@@ -3576,7 +3576,7 @@ async function signInWithApple() {
 function loadSavedKeys() {
   const sbKey = localStorage.getItem('trogon_sb_key');
   const groqKey = localStorage.getItem('trogon_groq_key');
-  if (sbKey && sbKey.startsWith('eyJ')) {
+  if (sbKey && sbKey.startsWith('eyJ') || sbKey.startsWith('sb_')) {
     window._GROQ_KEY = groqKey || GROQ_KEY;
     // Re-init supabase with real key
     try { window.sb = createClient(SUPABASE_URL, sbKey); } catch(e){}
@@ -3603,7 +3603,7 @@ Object.defineProperty(window, 'GROQ_KEY', {
 // Check keys on load
 window.addEventListener('DOMContentLoaded', function() {
   const sbKey = localStorage.getItem('trogon_sb_key');
-  if (!sbKey || !sbKey.startsWith('eyJ')) {
+  if (!sbKey || !sbKey.startsWith('eyJ') || sbKey.startsWith('sb_')) {
     document.getElementById('setup-screen').style.display = 'flex';
     document.getElementById('auth-screen').style.display = 'none';
   }
