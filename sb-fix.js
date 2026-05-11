@@ -1,68 +1,58 @@
-// sb-fix.js v3 — real key + getSession fallback for OAuth redirect
+// sb-fix.js v4
 (function() {
   var REAL_KEY = 'sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS';
   var SB_URL = 'https://sazhdnqzaqpqcralmthh.supabase.co';
 
-  // Set localStorage immediately
-  localStorage.setItem('trogon_sb_key', REAL_KEY);
+  // Set localStorage immediately so app.html line 1598 reads the real key
+  try { localStorage.setItem('trogon_sb_key', REAL_KEY); } catch(e){}
 
-  // After page loads, ensure sb is initialized and check for existing session
-  window.addEventListener('DOMContentLoaded', function() {
-    var attempts = 0;
-    var interval = setInterval(function() {
-      attempts++;
+  // Poll for supabase SDK to be ready (runs immediately, no DOMContentLoaded)
+  var attempts = 0;
+  var interval = setInterval(function() {
+    attempts++;
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+      clearInterval(interval);
 
-      if (typeof supabase !== 'undefined' && supabase.createClient) {
-        // Re-create sb with real key to ensure it's correct
-        var client = supabase.createClient(SB_URL, REAL_KEY, {
-          auth: {
-            detectSessionInUrl: true,
-            persistSession: true,
-            autoRefreshToken: true
-          }
+      // Create fresh sb client with real key
+      var client = supabase.createClient(SB_URL, REAL_KEY, {
+        auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+      });
+      window.sb = client;
+
+      // Patch signInWithFacebook
+      window.signInWithFacebook = async function() {
+        var result = await window.sb.auth.signInWithOAuth({
+          provider: 'facebook',
+          options: { redirectTo: 'https://trogon-app.vercel.app/app.html' }
         });
-        window.sb = client;
-        console.log('[Trogon] sb initialized with real key');
+        if (result.error && window.toast) window.toast(result.error.message, 'error');
+      };
 
-        // Patch signInWithFacebook
-        window.signInWithFacebook = async function() {
-          var result = await window.sb.auth.signInWithOAuth({
-            provider: 'facebook',
-            options: { redirectTo: 'https://trogon-app.vercel.app/app.html' }
-          });
-          if (result.error) {
-            console.error('[Trogon] FB login error:', result.error);
-            if (window.toast) window.toast(result.error.message, 'error');
-          }
-        };
-
-        // Check if there's already a session (e.g. after OAuth redirect)
-        // This handles the case where onAuthStateChange fires before our patch
-        window.sb.auth.getSession().then(function(result) {
-          if (result.data && result.data.session && result.data.session.user) {
-            console.log('[Trogon] Session found via getSession, logging in...');
-            if (typeof window.onLogin === 'function') {
-              window.onLogin(result.data.session.user);
-            }
+      // Handle OAuth callback: check for session
+      window.sb.auth.getSession().then(function(r) {
+        if (r.data && r.data.session) {
+          if (typeof window.onLogin === 'function') {
+            window.onLogin(r.data.session.user);
           } else {
-            console.log('[Trogon] No active session');
+            // onLogin not ready yet, wait for it
+            var wait = setInterval(function() {
+              if (typeof window.onLogin === 'function') {
+                clearInterval(wait);
+                window.onLogin(r.data.session.user);
+              }
+            }, 100);
+            setTimeout(function(){ clearInterval(wait); }, 5000);
           }
-        });
+        }
+      });
 
-        // Re-register onAuthStateChange with the fixed client
-        window.sb.auth.onAuthStateChange(function(event, session) {
-          console.log('[Trogon] Auth event:', event);
-          if (event === 'SIGNED_IN' && session) {
-            if (typeof window.onLogin === 'function') {
-              window.onLogin(session.user);
-            }
-          }
-        });
-
-        clearInterval(interval);
-      }
-
-      if (attempts > 30) clearInterval(interval);
-    }, 200);
-  });
+      // Listen for future auth changes
+      window.sb.auth.onAuthStateChange(function(event, session) {
+        if (event === 'SIGNED_IN' && session && typeof window.onLogin === 'function') {
+          window.onLogin(session.user);
+        }
+      });
+    }
+    if (attempts > 100) clearInterval(interval);
+  }, 50);
 })();
