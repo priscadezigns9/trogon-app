@@ -1,24 +1,25 @@
-// Supabase key fix — injected by Trogon bootstrap
+// Supabase key fix + FB App ID fix
 (function() {
   var REAL_KEY = 'sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS';
   var SB_URL = 'https://sazhdnqzaqpqcralmthh.supabase.co';
+  var FB_APP_ID = '1631501404795356';
 
-  // Set in localStorage so app.html line 1598 picks it up
   localStorage.setItem('trogon_sb_key', REAL_KEY);
 
-  // Also patch window so if createClient runs before this, we fix it after
   window.addEventListener('DOMContentLoaded', function() {
-    // Wait for supabase SDK to load
     var attempts = 0;
     var interval = setInterval(function() {
       attempts++;
-      if (typeof supabase !== 'undefined' && supabase.createClient) {
-        // Re-create sb with real key
+      var sbReady = typeof supabase !== 'undefined' && supabase.createClient;
+      if (sbReady) {
         window.sb = supabase.createClient(SB_URL, REAL_KEY);
-        console.log('[Trogon] sb fixed with real key');
-        
-        // Also patch signInWithFacebook to use fixed sb
-        var orig = window.signInWithFacebook;
+        console.log('[Trogon] sb initialized with real key');
+
+        if (window.FB) {
+          window.FB.init({appId: FB_APP_ID, cookie: true, xfbml: true, version: 'v19.0'});
+          console.log('[Trogon] FB re-init with', FB_APP_ID);
+        }
+
         window.signInWithFacebook = async function() {
           var client = window.sb || supabase.createClient(SB_URL, REAL_KEY);
           var result = await client.auth.signInWithOAuth({
@@ -31,10 +32,10 @@
             else alert(result.error.message);
           }
         };
-        console.log('[Trogon] signInWithFacebook patched');
+        console.log('[Trogon] All patches applied');
         clearInterval(interval);
       }
-      if (attempts > 20) clearInterval(interval);
+      if (attempts > 30) clearInterval(interval);
     }, 200);
   });
 })();
