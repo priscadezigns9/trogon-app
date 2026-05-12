@@ -1,4 +1,4 @@
-// sb-fix.js v5 -- magic link + password recovery
+// sb-fix.js v6 -- force implicit flow for magic links
 (function() {
   var REAL_KEY = 'sb_publishable_UicuMabi1dRKAvQ4YGiakg_NCMnftfS';
   var SB_URL = 'https://sazhdnqzaqpqcralmthh.supabase.co';
@@ -12,7 +12,12 @@
       clearInterval(interval);
 
       var client = supabase.createClient(SB_URL, REAL_KEY, {
-        auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+        auth: {
+          detectSessionInUrl: true,
+          persistSession: true,
+          autoRefreshToken: true,
+          flowType: 'implicit'
+        }
       });
       window.sb = client;
 
@@ -41,14 +46,12 @@
         }
       }
 
-      // Check for existing session (handles magic link token in URL hash)
       window.sb.auth.getSession().then(function(r) {
         if (r.data && r.data.session) {
           waitAndLogin(r.data.session.user);
         }
       });
 
-      // Listen for auth events
       window.sb.auth.onAuthStateChange(function(event, session) {
         if (event === 'SIGNED_IN' && session) {
           waitAndLogin(session.user);
