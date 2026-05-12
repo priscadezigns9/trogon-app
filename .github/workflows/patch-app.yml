@@ -1,28 +1,45 @@
 name: patch-app-magic-link
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/patch-app.yml]
 jobs:
   patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Patch app.html and push
         run: |
-          python3 - <<'EOF'
+          python3 << 'PYEOF'
 with open("app.html") as f:
     c = f.read()
-c = c.replace('<head><script src="/sb-fix.js"></script>', '<head>', 1)
-cdn = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>'
+
+sq = chr(39)
+dq = chr(34)
+
+# Fix 1: move sb-fix.js out of head
+c = c.replace("<head><script src=" + dq + "/sb-fix.js" + dq + "></script>", "<head>", 1)
+
+# Fix 2: place sb-fix.js after Supabase CDN
+cdn = "<script src=" + dq + "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" + dq + "></script>"
+sbfix = "<script src=" + dq + "/sb-fix.js" + dq + "></script>"
 if cdn in c:
-    c = c.replace(cdn, cdn + chr(10) + '<script src="/sb-fix.js"></script>', 1)
-OLD = 'const sb = createClient(SUPABASE_URL, _sbKey);'
-NEW = 'const sb = createClient(SUPABASE_URL, _sbKey, { auth: { flowType: ' + chr(34) + 'implicit' + chr(34) + ', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });'
+    c = c.replace(cdn, cdn + chr(10) + sbfix, 1)
+
+# Fix 3: add flowType to createClient
+OLD = "const sb = createClient(SUPABASE_URL, _sbKey);"
+NEW = "const sb = createClient(SUPABASE_URL, _sbKey, { auth: { flowType: " + dq + "implicit" + dq + ", detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });"
 c = c.replace(OLD, NEW, 1)
+
 with open("app.html", "w") as f:
     f.write(c)
-print("flowType present:", "flowType" in c)
-EOF
+
+print("Done. flowType present:", "flowType" in c)
+print("sb-fix.js after CDN:", c.find("sb-fix.js") > c.find("supabase-js@2"))
+PYEOF
           git config user.email "bot@priscadezigns.org"
           git config user.name "Zapia Bot"
           git add app.html
-          git diff --staged --quiet && echo "No changes needed" || (git commit -m "fix: flowType:implicit + move sb-fix.js after CDN" && git push)
+          git diff --staged --quiet && echo "No changes needed" || (git commit -m "fix: flowType:implicit + move sb-fix.js after CDN in app.html" && git push)
