@@ -2,7 +2,6 @@ name: patch-app-magic-link
 on:
   push:
     branches: [main]
-    paths: [.github/workflows/patch-app.yml]
 jobs:
   patch:
     runs-on: ubuntu-latest
@@ -10,36 +9,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Patch app.html and push
+      - name: Patch app.html
         run: |
-          python3 << 'PYEOF'
-with open("app.html") as f:
-    c = f.read()
-
-sq = chr(39)
-dq = chr(34)
-
-# Fix 1: move sb-fix.js out of head
-c = c.replace("<head><script src=" + dq + "/sb-fix.js" + dq + "></script>", "<head>", 1)
-
-# Fix 2: place sb-fix.js after Supabase CDN
-cdn = "<script src=" + dq + "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" + dq + "></script>"
-sbfix = "<script src=" + dq + "/sb-fix.js" + dq + "></script>"
-if cdn in c:
-    c = c.replace(cdn, cdn + chr(10) + sbfix, 1)
-
-# Fix 3: add flowType to createClient
-OLD = "const sb = createClient(SUPABASE_URL, _sbKey);"
-NEW = "const sb = createClient(SUPABASE_URL, _sbKey, { auth: { flowType: " + dq + "implicit" + dq + ", detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });"
-c = c.replace(OLD, NEW, 1)
-
-with open("app.html", "w") as f:
-    f.write(c)
-
-print("Done. flowType present:", "flowType" in c)
-print("sb-fix.js after CDN:", c.find("sb-fix.js") > c.find("supabase-js@2"))
-PYEOF
-          git config user.email "bot@priscadezigns.org"
-          git config user.name "Zapia Bot"
+          python3 -c "import base64; exec(base64.b64decode('CndpdGggb3BlbigiYXBwLmh0bWwiKSBhcyBmOgogICAgYyA9IGYucmVhZCgpCmRxID0gY2hyKDM0KQpjID0gYy5yZXBsYWNlKCI8aGVhZD48c2NyaXB0IHNyYz0iICsgZHEgKyAiL3NiLWZpeC5qcyIgKyBkcSArICI+PC9zY3JpcHQ+IiwgIjxoZWFkPiIsIDEpCmNkbiA9ICI8c2NyaXB0IHNyYz0iICsgZHEgKyAiaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9Ac3VwYWJhc2Uvc3VwYWJhc2UtanNAMi9kaXN0L3VtZC9zdXBhYmFzZS5qcyIgKyBkcSArICI+PC9zY3JpcHQ+IgpzYmZpeCA9ICI8c2NyaXB0IHNyYz0iICsgZHEgKyAiL3NiLWZpeC5qcyIgKyBkcSArICI+PC9zY3JpcHQ+IgppZiBjZG4gaW4gYzoKICAgIGMgPSBjLnJlcGxhY2UoY2RuLCBjZG4gKyBjaHIoMTApICsgc2JmaXgsIDEpCk9MRCA9ICJjb25zdCBzYiA9IGNyZWF0ZUNsaWVudChTVVBBQkFTRV9VUkwsIF9zYktleSk7IgpORVcgPSAiY29uc3Qgc2IgPSBjcmVhdGVDbGllbnQoU1VQQUJBU0VfVVJMLCBfc2JLZXksIHsgYXV0aDogeyBmbG93VHlwZTogIiArIGRxICsgImltcGxpY2l0IiArIGRxICsgIiwgZGV0ZWN0U2Vzc2lvbkluVXJsOiB0cnVlLCBwZXJzaXN0U2Vzc2lvbjogdHJ1ZSwgYXV0b1JlZnJlc2hUb2tlbjogdHJ1ZSB9IH0pOyIKYyA9IGMucmVwbGFjZShPTEQsIE5FVywgMSkKd2l0aCBvcGVuKCJhcHAuaHRtbCIsICJ3IikgYXMgZjoKICAgIGYud3JpdGUoYykKcHJpbnQoIkRvbmUuIGZsb3dUeXBlOiIsICJmbG93VHlwZSIgaW4gYykK').decode())"
+      - name: Commit and push
+        run: |
+          git config user.email bot@priscadezigns.org
+          git config user.name Zapia
           git add app.html
-          git diff --staged --quiet && echo "No changes needed" || (git commit -m "fix: flowType:implicit + move sb-fix.js after CDN in app.html" && git push)
+          git diff --staged --quiet && echo No-changes || git commit -m fix-magic-link && git push
