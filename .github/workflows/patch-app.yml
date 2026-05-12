@@ -6,34 +6,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch app.html
+      - name: Patch app.html and push
         run: |
-          python3 patch_runner.py
-      - name: Write patch script
-        run: |
-          cat > patch_runner.py << 'PEOF'
+          python3 - <<'EOF'
 with open("app.html") as f:
     c = f.read()
-# Move sb-fix.js after Supabase CDN
 c = c.replace('<head><script src="/sb-fix.js"></script>', '<head>', 1)
 cdn = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>'
-if cdn in c and '<script src="/sb-fix.js">' not in c:
-    c = c.replace(cdn, cdn + '\n<script src="/sb-fix.js"></script>', 1)
-# Add flowType to createClient
-c = c.replace(
-    'const sb = createClient(SUPABASE_URL, _sbKey);',
-    'const sb = createClient(SUPABASE_URL, _sbKey, { auth: { flowType: "implicit", detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });',
-    1
-)
+if cdn in c:
+    c = c.replace(cdn, cdn + chr(10) + '<script src="/sb-fix.js"></script>', 1)
+OLD = 'const sb = createClient(SUPABASE_URL, _sbKey);'
+NEW = 'const sb = createClient(SUPABASE_URL, _sbKey, { auth: { flowType: ' + chr(34) + 'implicit' + chr(34) + ', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });'
+c = c.replace(OLD, NEW, 1)
 with open("app.html", "w") as f:
     f.write(c)
-print("Done. flowType:", "flowType" in c)
-PEOF
-          python3 patch_runner.py
-      - name: Commit and push
-        run: |
+print("flowType present:", "flowType" in c)
+EOF
           git config user.email "bot@priscadezigns.org"
           git config user.name "Zapia Bot"
           git add app.html
-          git diff --staged --quiet && echo "No changes" || git commit -m "fix: flowType:implicit + move sb-fix.js after CDN in app.html"
-          git push
+          git diff --staged --quiet && echo "No changes needed" || (git commit -m "fix: flowType:implicit + move sb-fix.js after CDN" && git push)
