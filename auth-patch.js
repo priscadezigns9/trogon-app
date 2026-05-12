@@ -1,4 +1,7 @@
-// Trogon Auth + Stripe Patch v2
+// Trogon Auth + Stripe Patch v3
+// NOTE: window.sb is set by sb-fix.js (loaded before this file).
+// This patch adds Stripe links and password reset UI only.
+// Magic link auth is fully handled by sb-fix.js v7.
 (function() {
   var STRIPE_LINKS = {
     pro: {
@@ -20,25 +23,6 @@
     var links = STRIPE_LINKS[plan];
     if (links && links[billing]) { window.location.href = links[billing]; }
   };
-
-  async function checkUrlSession() {
-    var hash = window.location.hash;
-    if (!hash || hash.indexOf('access_token') < 0) return;
-    try {
-      var result = await window.sb.auth.getSession();
-      if (result && result.data && result.data.session && result.data.session.user) {
-        if (typeof onLogin === 'function') await onLogin(result.data.session.user);
-      }
-    } catch(e) { console.log('auth-patch error:', e); }
-  }
-
-  window.sb.auth.onAuthStateChange(async function(event, session) {
-    if (event === 'PASSWORD_RECOVERY') {
-      if (typeof window.showResetPasswordForm === 'function') window.showResetPasswordForm();
-    } else if (event === 'SIGNED_IN' && session) {
-      if (typeof onLogin === 'function') await onLogin(session.user);
-    }
-  });
 
   window.showResetPasswordForm = function() {
     var s = document.getElementById('auth-screen');
@@ -69,11 +53,5 @@
       if (typeof toast === 'function') toast('Payment successful - welcome to Pro!');
       window.history.replaceState(null, '', window.location.pathname + window.location.hash);
     }, 1000);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkUrlSession);
-  } else {
-    setTimeout(checkUrlSession, 600);
   }
 })();
